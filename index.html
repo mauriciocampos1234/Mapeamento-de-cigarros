@@ -404,17 +404,13 @@
             const firebase = window.firebase;
             
             try {
-                // --- CONFIGURAÇÃO PESSOAL DO FIREBASE ---
-                // Para usar no GitHub Pages, você PRECISA substituir o objeto abaixo 
-                // pelas credenciais do seu projeto Firebase (Console -> Project Settings -> General -> Your apps -> Config)
-                const seus_dados_firebase_aqui = {
-                    apiKey: "SUA_API_KEY_AQUI",
-                    authDomain: "SEU_PROJETO.firebaseapp.com",
-                    projectId: "SEU_PROJECT_ID",
-                    storageBucket: "SEU_PROJETO.appspot.com",
-                    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-                    appId: "SEU_APP_ID"
-                };
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBz5y5gzBwm_dt5u3LfLLSublYs_iQWfCQ",
+                    authDomain: "rastreadorcigarros.firebaseapp.com",
+                    projectId: "rastreadorcigarros",
+                    storageBucket: "rastreadorcigarros.firebasestorage.app",
+                    messagingSenderId: "117110961176",
+                    appId: "1:117110961176:web:03c47d4304239287a43f6d"
 
                 // Tenta pegar do ambiente (se estiver no editor) ou usa a configuração manual (se estiver no GitHub)
                 let firebaseConfig;
