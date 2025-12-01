@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,40 +13,38 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+        
         // Expose Firebase objects globally for use in the main script block
-        window.firebase = {
-            initializeApp,
-            getAuth,
-            signInAnonymously,
-            signInWithCustomToken,
+        window.firebase = { 
+            initializeApp, 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken, 
             onAuthStateChanged,
-            getFirestore,
-            collection,
-            addDoc,
-            onSnapshot,
-            query,
-            where,
-            orderBy,
+            getFirestore, 
+            collection, 
+            addDoc, 
+            onSnapshot, 
+            query, 
+            where, 
+            orderBy, 
             serverTimestamp,
             setLogLevel
         };
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-
+        
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f5f5f4;
-            /* Stone 100 */
-            color: #1c1917;
-            /* Stone 900 */
+            background-color: #f5f5f4; /* Stone 100 */
+            color: #1c1917; /* Stone 900 */
         }
 
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 100%;
+            max-width: 100%; 
             margin-left: auto;
             margin-right: auto;
             height: 350px;
@@ -64,7 +61,6 @@
             .chart-container-wide {
                 max-width: 900px;
             }
-
             .chart-container-half {
                 max-width: 500px;
             }
@@ -82,23 +78,19 @@
             width: 8px;
             height: 8px;
         }
-
         ::-webkit-scrollbar-track {
-            background: #f5f5f4;
+            background: #f5f5f4; 
         }
-
         ::-webkit-scrollbar-thumb {
-            background: #a8a29e;
+            background: #a8a29e; 
             border-radius: 4px;
         }
-
         ::-webkit-scrollbar-thumb:hover {
-            background: #78716c;
+            background: #78716c; 
         }
     </style>
-
+    <!-- Chosen Palette: Warm Neutrals (Stone/Orange). Stone for structure/calmness, Subtle Orange for data highlights/alerts. -->
 </head>
-
 <body class="flex flex-col min-h-screen">
 
     <!-- Navigation / Header -->
@@ -111,18 +103,11 @@
                 </div>
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-4">
-                        <button onclick="scrollToSection('overview')"
-                            class="hover:bg-stone-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Visão
-                            Geral</button>
-                        <button onclick="scrollToSection('record-entry')"
-                            class="hover:bg-stone-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Novo
-                            Registro</button>
-                        <button onclick="scrollToSection('financial')"
-                            class="hover:bg-stone-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Financeiro</button>
-                        <button onclick="scrollToSection('context')"
-                            class="hover:bg-stone-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Contexto</button>
-                        <button onclick="scrollToSection('log')"
-                            class="hover:bg-stone-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Registros</button>
+                        <button onclick="scrollToSection('overview')" class="hover:bg-stone-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Visão Geral</button>
+                        <button onclick="scrollToSection('record-entry')" class="hover:bg-stone-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Novo Registro</button>
+                        <button onclick="scrollToSection('financial')" class="hover:bg-stone-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Financeiro</button>
+                        <button onclick="scrollToSection('context')" class="hover:bg-stone-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Contexto</button>
+                        <button onclick="scrollToSection('log')" class="hover:bg-stone-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Registros</button>
                     </div>
                 </div>
             </div>
@@ -137,13 +122,11 @@
             <div class="glass-panel p-6 rounded-xl">
                 <h2 class="text-2xl font-bold text-stone-800 mb-2">Painel de Controle Diário</h2>
                 <p class="text-stone-600 leading-relaxed">
-                    Este painel transforma os dados brutos do seu registro diário em <i>insights</i> acionáveis.
-                    O objetivo é visualizar claramente a relação entre o <strong>gasto financeiro</strong> e a
-                    <strong>frequência do hábito</strong>.
-                    Utilize os cartões abaixo para ter uma visão rápida do período analisado e identificar tendências de
-                    consumo.
+                    Este painel transforma os dados brutos do seu registro diário em <i>insights</i> acionáveis. 
+                    O objetivo é visualizar claramente a relação entre o <strong>gasto financeiro</strong> e a <strong>frequência do hábito</strong>.
+                    Utilize os cartões abaixo para ter uma visão rápida do período analisado e identificar tendências de consumo.
                 </p>
-                <div id="loadingMessage" class="mt-4 text-center text-orange-600 font-semibold hidden">
+                <div id="loadingMessage" class="mt-4 text-center text-orange-600 font-semibold">
                     Carregando dados...
                 </div>
                 <div id="authStatus" class="mt-4 text-xs text-stone-400 text-center">
@@ -159,7 +142,7 @@
                     <p class="text-3xl font-bold text-stone-800 mt-1" id="kpi-total-cigs">--</p>
                     <p class="text-xs text-stone-400 mt-2">No período selecionado</p>
                 </div>
-
+                
                 <!-- Total Cost -->
                 <div class="glass-panel p-5 rounded-xl border-l-4 border-stone-600">
                     <p class="text-sm font-medium text-stone-500 uppercase">Custo Total</p>
@@ -187,63 +170,54 @@
         <section id="record-entry" class="glass-panel p-6 rounded-xl">
             <h2 class="text-2xl font-bold text-stone-800 mb-4">➕ Registrar Nova Entrada</h2>
             <p class="text-stone-600 leading-relaxed mb-6">
-                Use este formulário para adicionar um novo registro de consumo ou compra. O dashboard será atualizado
-                automaticamente após a submissão e o registro será salvo permanentemente.
+                Use este formulário para adicionar um novo registro de consumo ou compra. O dashboard será atualizado automaticamente após a submissão e o registro será salvo permanentemente.
             </p>
             <form id="recordForm" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
                 <!-- Row 1: Core Consumption Data -->
                 <div class="md:col-span-1">
                     <label for="inputDate" class="block text-sm font-medium text-stone-700">Data *</label>
-                    <input type="date" id="inputDate" required
-                        class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
+                    <input type="date" id="inputDate" required class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
                 </div>
                 <div class="md:col-span-1">
-                    <label for="inputTimeSmoked" class="block text-sm font-medium text-stone-700">Hora do Cigarro
-                        *</label>
-                    <input type="time" id="inputTimeSmoked" required
-                        class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
+                    <label for="inputTimeSmoked" class="block text-sm font-medium text-stone-700">Hora do Cigarro *</label>
+                    <input type="time" id="inputTimeSmoked" required class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
                 </div>
-                <div class="md:col-span-4">
-                    <label for="inputContext" class="block text-sm font-medium text-stone-700">Atividade / Contexto
-                        *</label>
-                    <input type="text" id="inputContext" required
-                        placeholder="Ex: Pausa no trabalho, Após o almoço, Estresse"
-                        class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
+                <div class="md:col-span-1">
+                    <label for="inputCigQuantity" class="block text-sm font-medium text-stone-700">Qtd. Consumida *</label>
+                    <select id="inputCigQuantity" required class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
+                        <option value="1">1 (Cigarro Inteiro)</option>
+                        <option value="0.5">0.5 (Meio Cigarro)</option>
+                    </select>
+                </div>
+                <div class="md:col-span-3">
+                    <label for="inputContext" class="block text-sm font-medium text-stone-700">Atividade / Contexto *</label>
+                    <input type="text" id="inputContext" required placeholder="Ex: Pausa no trabalho, Após o almoço, Estresse" class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
                 </div>
 
                 <!-- Toggle for Purchase Info -->
                 <div class="md:col-span-6 flex items-center mt-3">
-                    <input id="togglePurchase" type="checkbox"
-                        class="h-4 w-4 text-orange-600 border-stone-300 rounded focus:ring-orange-500">
+                    <input id="togglePurchase" type="checkbox" class="h-4 w-4 text-orange-600 border-stone-300 rounded focus:ring-orange-500">
                     <label for="togglePurchase" class="ml-2 block text-sm text-stone-900 font-semibold">
                         Registrar Compra de Maço (Opcional)
                     </label>
                 </div>
-
+                
                 <!-- Row 2: Purchase Data (Initially Hidden) -->
-                <div id="purchaseFields"
-                    class="md:col-span-6 grid grid-cols-1 md:grid-cols-6 gap-4 border-t border-stone-200 pt-4 mt-2 hidden">
+                <div id="purchaseFields" class="md:col-span-6 grid grid-cols-1 md:grid-cols-6 gap-4 border-t border-stone-200 pt-4 mt-2 hidden">
                     <div class="md:col-span-1">
-                        <label for="inputTimeBought" class="block text-sm font-medium text-stone-700">Hora da
-                            Compra</label>
-                        <input type="time" id="inputTimeBought"
-                            class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
+                        <label for="inputTimeBought" class="block text-sm font-medium text-stone-700">Hora da Compra</label>
+                        <input type="time" id="inputTimeBought" class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
                     </div>
                     <div class="md:col-span-2">
-                        <label for="inputPacksBought" class="block text-sm font-medium text-stone-700">Qtd. Maços
-                            (Un.)</label>
-                        <input type="number" id="inputPacksBought" min="1" value="1"
-                            class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
+                        <label for="inputPacksBought" class="block text-sm font-medium text-stone-700">Qtd. Maços (Un.)</label>
+                        <input type="number" id="inputPacksBought" min="1" value="1" class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
                     </div>
                     <div class="md:col-span-2">
-                        <label for="inputPackValue" class="block text-sm font-medium text-stone-700">Valor do Maço
-                            (R$)</label>
-                        <input type="number" id="inputPackValue" step="0.01" value="15.00"
-                            class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
+                        <label for="inputPackValue" class="block text-sm font-medium text-stone-700">Valor do Maço (R$)</label>
+                        <input type="number" id="inputPackValue" step="0.01" value="15.00" class="mt-1 block w-full rounded-lg border-stone-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition">
                     </div>
                     <div class="md:col-span-1">
-                        <button type="submit"
-                            class="w-full py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all">
+                        <button type="submit" id="purchaseSaveButton" disabled class="w-full py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-400 cursor-not-allowed transition-all">
                             Salvar Registro
                         </button>
                     </div>
@@ -251,8 +225,7 @@
 
                 <!-- Save Button if no purchase is checked -->
                 <div id="saveNoPurchase" class="md:col-span-6 flex justify-end mt-3">
-                    <button type="submit"
-                        class="w-full md:w-auto py-2 px-6 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-stone-600 hover:bg-stone-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stone-500 transition-all">
+                    <button type="submit" id="consumptionSaveButton" disabled class="w-full md:w-auto py-2 px-6 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-stone-400 cursor-not-allowed transition-all">
                         Salvar Apenas Consumo
                     </button>
                 </div>
@@ -267,8 +240,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                     <div>
                         <h3 class="text-lg font-bold text-stone-800">Tendência: Custo vs. Consumo</h3>
-                        <p class="text-sm text-stone-500">Comparativo diário entre cigarros fumados (barras) e dinheiro
-                            gasto (linha).</p>
+                        <p class="text-sm text-stone-500">Comparativo diário entre cigarros fumados (barras) e dinheiro gasto (linha).</p>
                     </div>
                 </div>
                 <div class="w-full flex justify-center">
@@ -284,7 +256,7 @@
                 <p class="text-sm text-stone-600">
                     Com base na média atual, esta é a estimativa para o final de um mês de 30 dias.
                 </p>
-
+                
                 <div class="space-y-4">
                     <div class="bg-stone-100 p-4 rounded-lg">
                         <p class="text-sm text-stone-500 mb-1">Custo Estimado Mensal</p>
@@ -333,19 +305,18 @@
 
         <!-- Detailed Log -->
         <section id="log" class="glass-panel rounded-xl overflow-hidden">
-            <div
-                class="p-6 border-b border-stone-200 bg-stone-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="p-6 border-b border-stone-200 bg-stone-50 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div>
                     <h3 class="text-lg font-bold text-stone-800">Registro Detalhado</h3>
                     <p class="text-sm text-stone-500">Histórico completo de entradas.</p>
                 </div>
                 <div class="relative">
-                    <input type="text" id="tableSearch" placeholder="Filtrar por contexto..."
-                        class="pl-10 pr-4 py-2 border border-stone-300 rounded-lg text-sm focus:ring-2 focus:ring-stone-400 focus:outline-none w-full sm:w-64 transition-shadow">
+                    <input type="text" id="tableSearch" placeholder="Filtrar por contexto..." 
+                           class="pl-10 pr-4 py-2 border border-stone-300 rounded-lg text-sm focus:ring-2 focus:ring-stone-400 focus:outline-none w-full sm:w-64 transition-shadow">
                     <span class="absolute left-3 top-2.5 text-stone-400">🔍</span>
                 </div>
             </div>
-
+            
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left">
                     <thead class="bg-stone-100 text-stone-600 font-semibold uppercase text-xs">
@@ -372,7 +343,7 @@
     <!-- Footer -->
     <footer class="bg-stone-800 text-stone-400 py-8 mt-8">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-sm"> @2025 Criado por Maurício Campos<i> - Engenheiro de Software</i></p>
+            <p class="text-sm">@2025 Criado por Maurício Campos <i> - Engenheiro de Software e Ciêntista e Analista de Dados</i></p>
         </div>
     </footer>
 
@@ -386,6 +357,43 @@
         let isAuthReady = false;
 
         const collectionName = "cigaretteTrackerEntries";
+        
+        // Função para controlar o estado dos botões do formulário (fix para o erro de carregamento)
+        function setFormState(ready) {
+            const consumptionSaveButton = document.getElementById('consumptionSaveButton');
+            const purchaseSaveButton = document.getElementById('purchaseSaveButton');
+            
+            if (consumptionSaveButton && purchaseSaveButton) {
+                if (ready) {
+                    // Estado Pronto: Habilita botões e ajusta classes de cor/cursor
+                    consumptionSaveButton.classList.remove('bg-stone-400', 'cursor-not-allowed');
+                    consumptionSaveButton.classList.add('bg-stone-600', 'hover:bg-stone-700');
+                    
+                    purchaseSaveButton.classList.remove('bg-orange-400', 'cursor-not-allowed');
+                    purchaseSaveButton.classList.add('bg-orange-600', 'hover:bg-orange-700');
+
+                    // Verifica o estado atual do checkbox de compra para definir qual botão fica ativo
+                    if (document.getElementById('togglePurchase').checked) {
+                        consumptionSaveButton.disabled = true;
+                        purchaseSaveButton.disabled = false;
+                    } else {
+                        consumptionSaveButton.disabled = false;
+                        purchaseSaveButton.disabled = true;
+                    }
+                    
+                } else {
+                    // Estado Inicial/Carregando: Desabilita botões e usa classes de inatividade
+                    consumptionSaveButton.disabled = true;
+                    consumptionSaveButton.classList.add('bg-stone-400', 'cursor-not-allowed');
+                    consumptionSaveButton.classList.remove('bg-stone-600', 'hover:bg-stone-700');
+
+                    purchaseSaveButton.disabled = true;
+                    purchaseSaveButton.classList.add('bg-orange-400', 'cursor-not-allowed');
+                    purchaseSaveButton.classList.remove('bg-orange-600', 'hover:bg-orange-700');
+                }
+            }
+        }
+
 
         function initFirebase() {
             if (typeof window.firebase === 'undefined') {
@@ -394,7 +402,7 @@
             }
 
             const firebase = window.firebase;
-
+            
             try {
                 // Global variables provided by the Canvas environment
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -404,19 +412,21 @@
                 const app = firebase.initializeApp(firebaseConfig);
                 db = firebase.getFirestore(app);
                 auth = firebase.getAuth(app);
-
-                // Set Firestore log level for debugging
-                // firebase.setLogLevel('debug'); 
-
+                
+                // Set initial form state to disabled
+                document.getElementById('loadingMessage').classList.remove('hidden');
+                setFormState(false);
+                
                 // Authentication listener
                 firebase.onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
                         document.getElementById('authStatus').textContent = `Status de Autenticação: Conectado (ID: ${userId})`;
                         isAuthReady = true;
-
+                        setFormState(true); // Habilita botões após a autenticação!
+                        
                         // Start listening to data changes
-                        listenToRecords();
+                        listenToRecords(); 
                     } else {
                         // Sign in anonymously if no token is available or user is signed out
                         if (initialAuthToken) {
@@ -430,7 +440,6 @@
                             });
                         }
                     }
-                    document.getElementById('loadingMessage').classList.remove('hidden');
                 });
 
             } catch (error) {
@@ -438,29 +447,28 @@
                 document.getElementById('authStatus').textContent = 'Erro de inicialização do Firebase.';
             }
         }
-
+        
         // --- 2. Firestore Listener ---
 
         function listenToRecords() {
             if (!db || !userId) {
                 return;
             }
-
+            
             const collectionPath = `/artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'}/users/${userId}/${collectionName}`;
-
-            // FILTRO SEGURO: A query usa o userId para garantir que apenas os dados do usuário atual sejam lidos.
-            // O Firebase Security Rules (que você não precisa mexer) garante que mesmo se o front-end 
-            // tentar, ele só pode ler os dados no caminho que inclui o próprio userId.
+            
+            // Query para buscar e ordenar os registros do usuário atual.
             const q = firebase.query(
                 firebase.collection(db, collectionPath),
-                // Ordenar por data de criação para ter a ordem correta, mais recentes no topo.
-                firebase.orderBy("createdAt", "asc")
+                firebase.orderBy("createdAt", "asc") 
             );
 
             firebase.onSnapshot(q, (snapshot) => {
                 const updatedData = [];
                 snapshot.forEach((doc) => {
                     const data = doc.data();
+                    // Garante que o cigsConsumed seja tratado como float, pois pode ser 0.5
+                    const consumed = parseFloat(data.cigsConsumed) || 0;
                     updatedData.push({
                         id: doc.id,
                         date: data.date,
@@ -469,26 +477,25 @@
                         timeBought: data.timeBought || null,
                         packsBought: data.packsBought || 0,
                         packValue: data.packValue || 0,
-                        cigsConsumed: data.cigsConsumed || 1,
+                        cigsConsumed: consumed, 
                         cost: data.cost || 0
                     });
                 });
 
                 appData = updatedData;
-                refreshDashboard(); // Update UI with new data
+                refreshDashboard(); // Atualiza a UI com os novos dados
                 document.getElementById('loadingMessage').classList.add('hidden');
             }, (error) => {
                 console.error("Error listening to documents:", error);
                 document.getElementById('loadingMessage').textContent = 'Erro ao carregar dados.';
             });
         }
-
+        
         // --- 3. UI Update Logic (Refactored to run after data load) ---
-
+        
         function refreshDashboard() {
-            // Re-sort data to ensure charts are always in the correct order (by date/time)
+             // Re-sort data to ensure charts are always in the correct order (by date/time)
             appData.sort((a, b) => {
-                // Convert DD/MM/YYYY to YYYYMMDD and combine with time HHMM for accurate comparison
                 const parseDate = (dateStr, timeStr) => {
                     const [day, month, year] = dateStr.split('/');
                     const [hour, minute] = timeStr.split(':');
@@ -496,7 +503,7 @@
                 };
                 return parseDate(a.date, a.timeSmoked) - parseDate(b.date, b.timeSmoked);
             });
-
+            
             const stats = getAggregatedStats(appData);
 
             renderKPIs(stats);
@@ -509,9 +516,9 @@
         // Global Chart instances to allow for destruction/update
         let trendChartInstance = null;
         let contextChartInstance = null;
-
+        
         // --- 4. Analytics Helper Functions (No change, uses appData) ---
-
+        
         function getAggregatedStats(data) {
             let totalCigs = 0;
             let totalCost = 0;
@@ -521,16 +528,16 @@
             const dailyStats = {};
 
             data.forEach(item => {
-                totalCigs += item.cigsConsumed;
+                totalCigs += item.cigsConsumed; // Agora pode somar 0.5
                 totalCost += item.cost;
                 totalPacks += item.packsBought;
                 uniqueDates.add(item.date);
 
                 // Context
                 if (contextCounts[item.context]) {
-                    contextCounts[item.context]++;
+                    contextCounts[item.context] += item.cigsConsumed; // Soma quantidade fracionada ao contexto
                 } else {
-                    contextCounts[item.context] = 1;
+                    contextCounts[item.context] = item.cigsConsumed;
                 }
 
                 // Daily Stats
@@ -544,7 +551,7 @@
             const daysCount = uniqueDates.size || 1;
 
             return {
-                totalCigs,
+                totalCigs: totalCigs.toFixed(1), // Total com 1 casa decimal
                 totalCost,
                 totalPacks,
                 daysCount,
@@ -565,8 +572,8 @@
 
             // Projections (30 days)
             const projCost = (parseFloat(stats.avgCost || 0) * 30).toFixed(2).replace('.', ',');
-            const projCigs = Math.round(parseFloat(stats.avgCigs || 0) * 30);
-
+            const projCigs = (parseFloat(stats.avgCigs || 0) * 30).toFixed(1);
+            
             document.getElementById('proj-cost').textContent = `R$ ${projCost}`;
             document.getElementById('proj-cigs').textContent = projCigs;
         }
@@ -616,7 +623,7 @@
                         legend: { position: 'top' },
                         tooltip: {
                             callbacks: {
-                                label: function (context) {
+                                label: function(context) {
                                     let label = context.dataset.label || '';
                                     if (label) {
                                         label += ': ';
@@ -625,7 +632,8 @@
                                         if (context.datasetIndex === 0) {
                                             label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
                                         } else {
-                                            label += context.parsed.y + ' un.';
+                                            // Exibe a quantidade com uma casa decimal (0.5 ou 1.0)
+                                            label += context.parsed.y.toFixed(1) + ' un.'; 
                                         }
                                     }
                                     return label;
@@ -662,7 +670,7 @@
             if (contextChartInstance) {
                 contextChartInstance.destroy();
             }
-
+            
             const ctx = document.getElementById('contextChart').getContext('2d');
             const labels = Object.keys(contextCounts);
             const data = Object.values(contextCounts);
@@ -690,6 +698,15 @@
                                 boxWidth: 12,
                                 padding: 15,
                                 font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    return `${label}: ${value.toFixed(1)} un.`;
+                                }
                             }
                         }
                     },
@@ -721,10 +738,10 @@
 
             data.forEach(item => {
                 const dummyDate = '2000-01-01 ';
-
+                
                 smokeTrace.x.push(dummyDate + item.timeSmoked);
                 smokeTrace.y.push(item.date);
-                smokeTrace.text.push(`Contexto: ${item.context}`);
+                smokeTrace.text.push(`Contexto: ${item.context} (${item.cigsConsumed.toFixed(1)} un.)`);
 
                 if (item.timeBought) {
                     buyTrace.x.push(dummyDate + item.timeBought);
@@ -760,7 +777,7 @@
         function renderTable(data) {
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
-
+            
             if (data.length === 0) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td colspan="5" class="px-6 py-4 text-center text-stone-400 italic">Nenhum registro encontrado. Comece a adicionar entradas acima!</td>`;
@@ -781,17 +798,17 @@
             sortedData.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-stone-50 transition-colors';
-
-                const purchaseInfo = item.packsBought > 0
-                    ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">${item.packsBought} un.</span>`
+                
+                const purchaseInfo = item.packsBought > 0 
+                    ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">${item.packsBought} un.</span>` 
                     : '<span class="text-stone-300">-</span>';
 
                 const costClass = item.cost > 0 ? 'text-stone-800 font-bold' : 'text-stone-300';
-
+                
                 tr.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap text-stone-700 font-medium">${item.date}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-stone-600">${item.timeSmoked}</td>
-                    <td class="px-6 py-4 text-stone-600">${item.context}</td>
+                    <td class="px-6 py-4 text-stone-600">${item.context} (${item.cigsConsumed.toFixed(1)} un.)</td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">${purchaseInfo}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right ${costClass}">
                         ${item.cost > 0 ? 'R$ ' + item.cost.toFixed(2).replace('.', ',') : '-'}
@@ -803,9 +820,13 @@
 
         // --- 6. Record Entry Logic (Now using Firestore) ---
 
-        document.getElementById('togglePurchase').addEventListener('change', function () {
+        document.getElementById('togglePurchase').addEventListener('change', function() {
             const purchaseFields = document.getElementById('purchaseFields');
             const saveNoPurchase = document.getElementById('saveNoPurchase');
+            
+            // Re-evaluates button state based on new toggle state and Firebase readiness
+            setFormState(isAuthReady);
+            
             if (this.checked) {
                 purchaseFields.classList.remove('hidden');
                 saveNoPurchase.classList.add('hidden');
@@ -815,22 +836,24 @@
             }
         });
 
-        document.getElementById('recordForm').addEventListener('submit', async function (e) {
+        document.getElementById('recordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
+            
             if (!isAuthReady || !db || !userId) {
-                alert('Aguarde o carregamento do sistema de banco de dados.');
-                return;
+                 // Enhanced message for the user, indicating they must wait for loading
+                 alert('O sistema de banco de dados ainda está carregando ou houve um erro de conexão. Por favor, aguarde o status de "Conectado" e tente novamente.');
+                 return;
             }
 
             const dateInput = document.getElementById('inputDate').value;
             const timeSmokedInput = document.getElementById('inputTimeSmoked').value;
             const contextInput = document.getElementById('inputContext').value;
+            const cigQuantityInput = document.getElementById('inputCigQuantity').value; // Novo campo
             const isPurchase = document.getElementById('togglePurchase').checked;
 
-            if (!dateInput || !timeSmokedInput || !contextInput) {
-                const message = 'Por favor, preencha a Data, Hora do Cigarro e Contexto.';
-                alert(message);
+            if (!dateInput || !timeSmokedInput || !contextInput || !cigQuantityInput) {
+                const message = 'Por favor, preencha a Data, Hora do Cigarro, Quantidade e Contexto.';
+                alert(message); 
                 return;
             }
 
@@ -843,13 +866,13 @@
                 timeBought = document.getElementById('inputTimeBought').value || timeSmokedInput;
                 packsBought = parseInt(document.getElementById('inputPacksBought').value) || 0;
                 packValue = parseFloat(document.getElementById('inputPackValue').value) || 0;
-
+                
                 cost = packsBought * packValue;
             }
 
             const [year, month, day] = dateInput.split('-');
             const formattedDate = `${day}/${month}/${year}`;
-
+            
             const newRecord = {
                 // Campos de dados
                 date: formattedDate,
@@ -858,11 +881,11 @@
                 timeBought: timeBought,
                 packsBought: packsBought,
                 packValue: packValue,
-                cigsConsumed: 1,
+                cigsConsumed: parseFloat(cigQuantityInput), // Salva o valor fracionado
                 cost: cost,
                 // Campo crucial para o multiusuário e ordenação no Firestore
-                userId: userId,
-                createdAt: firebase.serverTimestamp()
+                userId: userId, 
+                createdAt: firebase.serverTimestamp() 
             };
 
             try {
@@ -875,11 +898,11 @@
                 document.getElementById('togglePurchase').checked = false;
                 document.getElementById('purchaseFields').classList.add('hidden');
                 document.getElementById('saveNoPurchase').classList.remove('hidden');
-
+                
                 scrollToSection('overview');
 
                 // The UI update (refreshDashboard) will happen automatically via onSnapshot listener!
-                alert(`Registro salvo com sucesso (e permanentemente)!`);
+                alert(`Registro salvo com sucesso (e permanentemente)! Consumo: ${newRecord.cigsConsumed.toFixed(1)} un.`);
 
             } catch (error) {
                 console.error("Error writing document:", error);
@@ -889,10 +912,10 @@
 
 
         // --- 7. Search/Filter Logic (No change) ---
-        document.getElementById('tableSearch').addEventListener('input', function (e) {
+        document.getElementById('tableSearch').addEventListener('input', function(e) {
             const term = e.target.value.toLowerCase();
-            const filtered = appData.filter(item =>
-                item.context.toLowerCase().includes(term) ||
+            const filtered = appData.filter(item => 
+                item.context.toLowerCase().includes(term) || 
                 item.date.includes(term)
             );
             renderTable(filtered);
@@ -918,5 +941,4 @@
 
     </script>
 </body>
-
 </html>
