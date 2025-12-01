@@ -404,13 +404,24 @@
             const firebase = window.firebase;
             
             try {
-                const firebaseConfig = {
-                    apiKey: "AIzaSyBz5y5gzBwm_dt5u3LfLLSublYs_iQWfCQ",
-                    authDomain: "rastreadorcigarros.firebaseapp.com",
-                    projectId: "rastreadorcigarros",
-                    storageBucket: "rastreadorcigarros.firebasestorage.app",
-                    messagingSenderId: "117110961176",
-                    appId: "1:117110961176:web:03c47d4304239287a43f6d"
+                <script type="module">
+ 
+                  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+ 
+
+ 
+                  const firebaseConfig = {
+                    apiKey: "AIzaSyCt8rWuKVi6S8cG1GUpa1MGfOGLz_5m-UM",
+                    authDomain: "mapeamentocigarros.firebaseapp.com",
+                    projectId: "mapeamentocigarros",
+                    storageBucket: "mapeamentocigarros.firebasestorage.app",
+                    messagingSenderId: "911298596636",
+                    appId: "1:911298596636:web:12b5fa79299936e40b34d9"
+                  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
 
                 // Tenta pegar do ambiente (se estiver no editor) ou usa a configuração manual (se estiver no GitHub)
                 let firebaseConfig;
