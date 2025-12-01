@@ -404,9 +404,30 @@
             const firebase = window.firebase;
             
             try {
-                // Global variables provided by the Canvas environment
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                // --- CONFIGURAÇÃO PESSOAL DO FIREBASE ---
+                // Para usar no GitHub Pages, você PRECISA substituir o objeto abaixo 
+                // pelas credenciais do seu projeto Firebase (Console -> Project Settings -> General -> Your apps -> Config)
+                const seus_dados_firebase_aqui = {
+                    apiKey: "SUA_API_KEY_AQUI",
+                    authDomain: "SEU_PROJETO.firebaseapp.com",
+                    projectId: "SEU_PROJECT_ID",
+                    storageBucket: "SEU_PROJETO.appspot.com",
+                    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+                    appId: "SEU_APP_ID"
+                };
+
+                // Tenta pegar do ambiente (se estiver no editor) ou usa a configuração manual (se estiver no GitHub)
+                let firebaseConfig;
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                     firebaseConfig = JSON.parse(__firebase_config);
+                } else {
+                     // Verifica se o usuário preencheu a configuração
+                     if (seus_dados_firebase_aqui.apiKey === "SUA_API_KEY_AQUI") {
+                         alert("Atenção: Você precisa configurar o Firebase no código para que o salvamento funcione no GitHub Pages. Procure por 'seus_dados_firebase_aqui' no arquivo index.html.");
+                     }
+                     firebaseConfig = seus_dados_firebase_aqui;
+                }
+                
                 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
                 const app = firebase.initializeApp(firebaseConfig);
@@ -444,7 +465,7 @@
 
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
-                document.getElementById('authStatus').textContent = 'Erro de inicialização do Firebase.';
+                document.getElementById('authStatus').textContent = 'Erro de inicialização do Firebase. Verifique suas credenciais no código.';
             }
         }
         
@@ -455,7 +476,9 @@
                 return;
             }
             
-            const collectionPath = `/artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'}/users/${userId}/${collectionName}`;
+            // Usamos uma coleção raiz se o __app_id não existir (caso do GitHub Pages)
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'meu-rastreador-pessoal';
+            const collectionPath = `/artifacts/${appId}/users/${userId}/${collectionName}`;
             
             // Query para buscar e ordenar os registros do usuário atual.
             const q = firebase.query(
@@ -487,7 +510,7 @@
                 document.getElementById('loadingMessage').classList.add('hidden');
             }, (error) => {
                 console.error("Error listening to documents:", error);
-                document.getElementById('loadingMessage').textContent = 'Erro ao carregar dados.';
+                document.getElementById('loadingMessage').textContent = 'Erro ao carregar dados. Verifique as regras do Firestore.';
             });
         }
         
@@ -890,7 +913,9 @@
 
             try {
                 // Usando o caminho private para o usuário logado
-                const collectionPath = `/artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'}/users/${userId}/${collectionName}`;
+                // Usamos uma coleção raiz se o __app_id não existir (caso do GitHub Pages)
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'meu-rastreador-pessoal';
+                const collectionPath = `/artifacts/${appId}/users/${userId}/${collectionName}`;
                 await firebase.addDoc(firebase.collection(db, collectionPath), newRecord);
 
                 // Clear the form and reset purchase fields state
