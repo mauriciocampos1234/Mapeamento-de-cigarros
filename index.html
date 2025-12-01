@@ -7,20 +7,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <!-- Firebase Imports for persistent storage -->
+    
+    <!-- Firebase Imports ATUALIZADOS para v12.6.0 -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Importando as funções necessárias do Firebase V12
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
         
         // Expose Firebase objects globally for use in the main script block
         window.firebase = { 
             initializeApp, 
             getAuth, 
             signInAnonymously, 
-            signInWithCustomToken, 
-            onAuthStateChanged,
+            onAuthStateChanged, // signInWithCustomToken não é necessário para autenticação anônima pura
             getFirestore, 
             collection, 
             addDoc, 
@@ -28,8 +28,7 @@
             query, 
             where, 
             orderBy, 
-            serverTimestamp,
-            setLogLevel
+            serverTimestamp
         };
     </script>
     <style>
@@ -343,7 +342,7 @@
     <!-- Footer -->
     <footer class="bg-stone-800 text-stone-400 py-8 mt-8">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-sm">@2025 Criado por Maurício Campos <i> - Engenheiro de Software e Ciêntista e Analista de Dados</i></p>
+            <p class="text-sm">Gerado a partir do relatório <i>rastreador_cigarros.csv</i></p>
         </div>
     </footer>
 
@@ -404,38 +403,20 @@
             const firebase = window.firebase;
             
             try {
-                <script type="module">
- 
-                  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
- 
-
- 
-                  const firebaseConfig = {
+                // --- CONFIGURAÇÃO PESSOAL DO FIREBASE (FORNECIDA PELO USUÁRIO) ---
+                const firebaseConfig = {
                     apiKey: "AIzaSyCt8rWuKVi6S8cG1GUpa1MGfOGLz_5m-UM",
                     authDomain: "mapeamentocigarros.firebaseapp.com",
                     projectId: "mapeamentocigarros",
-                    storageBucket: "mapeamentocigarros.firebasestorage.app",
+                    // Atenção: Usei 'mapeamentocigarros.appspot.com' que é o padrão para StorageBucket,
+                    // mas mantive a lógica de pegar o nome do projeto se não houver um fornecido explicitamente.
+                    storageBucket: "mapeamentocigarros.appspot.com", 
                     messagingSenderId: "911298596636",
                     appId: "1:911298596636:web:12b5fa79299936e40b34d9"
-                  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-</script>
-
-                // Tenta pegar do ambiente (se estiver no editor) ou usa a configuração manual (se estiver no GitHub)
-                let firebaseConfig;
-                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                     firebaseConfig = JSON.parse(__firebase_config);
-                } else {
-                     // Verifica se o usuário preencheu a configuração
-                     if (seus_dados_firebase_aqui.apiKey === "SUA_API_KEY_AQUI") {
-                         alert("Atenção: Você precisa configurar o Firebase no código para que o salvamento funcione no GitHub Pages. Procure por 'seus_dados_firebase_aqui' no arquivo index.html.");
-                     }
-                     firebaseConfig = seus_dados_firebase_aqui;
-                }
+                };
                 
-                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                // O token de autenticação personalizado só é usado no ambiente do Canvas, ignoramos aqui.
+                const initialAuthToken = null; 
 
                 const app = firebase.initializeApp(firebaseConfig);
                 db = firebase.getFirestore(app);
@@ -456,17 +437,10 @@
                         // Start listening to data changes
                         listenToRecords(); 
                     } else {
-                        // Sign in anonymously if no token is available or user is signed out
-                        if (initialAuthToken) {
-                            await firebase.signInWithCustomToken(auth, initialAuthToken).catch(error => {
-                                console.error("Error signing in with custom token:", error);
-                                firebase.signInAnonymously(auth);
-                            });
-                        } else {
-                            await firebase.signInAnonymously(auth).catch(error => {
-                                console.error("Error signing in anonymously:", error);
-                            });
-                        }
+                        // Faz o login anônimo, que é o que precisamos para persistir dados sem senha
+                        await firebase.signInAnonymously(auth).catch(error => {
+                            console.error("Error signing in anonymously:", error);
+                        });
                     }
                 });
 
@@ -483,8 +457,8 @@
                 return;
             }
             
-            // Usamos uma coleção raiz se o __app_id não existir (caso do GitHub Pages)
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'meu-rastreador-pessoal';
+            // Usamos um nome fixo se o __app_id não existir (caso do GitHub Pages)
+            const appId = 'mapeamentocigarros'; 
             const collectionPath = `/artifacts/${appId}/users/${userId}/${collectionName}`;
             
             // Query para buscar e ordenar os registros do usuário atual.
@@ -920,8 +894,7 @@
 
             try {
                 // Usando o caminho private para o usuário logado
-                // Usamos uma coleção raiz se o __app_id não existir (caso do GitHub Pages)
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'meu-rastreador-pessoal';
+                const appId = 'mapeamentocigarros';
                 const collectionPath = `/artifacts/${appId}/users/${userId}/${collectionName}`;
                 await firebase.addDoc(firebase.collection(db, collectionPath), newRecord);
 
