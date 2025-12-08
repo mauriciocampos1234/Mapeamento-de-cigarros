@@ -7,10 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    
-    <!-- Firebase Imports ATUALIZADOS para v12.6.0 -->
+    <!-- Firebase Imports for persistent storage -->
     <script type="module">
-        // Importando as funções necessárias do Firebase V12
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
@@ -20,7 +18,7 @@
             initializeApp, 
             getAuth, 
             signInAnonymously, 
-            onAuthStateChanged, // signInWithCustomToken não é necessário para autenticação anônima pura
+            onAuthStateChanged, 
             getFirestore, 
             collection, 
             addDoc, 
@@ -310,10 +308,16 @@
                     <p class="text-sm text-stone-500">Histórico completo de entradas.</p>
                 </div>
                 <div class="relative">
-                    <input type="text" id="tableSearch" placeholder="Filtrar por contexto..." 
+                    <input type="text" id="tableSearch" placeholder="Filtrar por contexto ou data..." 
                            class="pl-10 pr-4 py-2 border border-stone-300 rounded-lg text-sm focus:ring-2 focus:ring-stone-400 focus:outline-none w-full sm:w-64 transition-shadow">
                     <span class="absolute left-3 top-2.5 text-stone-400">🔍</span>
                 </div>
+            </div>
+            
+            <!-- NOVO: Total Consumido no Filtro -->
+            <div class="p-4 bg-stone-100 flex justify-between items-center text-sm font-semibold border-b border-stone-200">
+                <span class="text-stone-600">Total Consumido no Filtro:</span>
+                <span class="text-2xl font-bold text-orange-600" id="kpi-filtered-cigs">0.0</span>
             </div>
             
             <div class="overflow-x-auto">
@@ -342,11 +346,11 @@
     <!-- Footer -->
     <footer class="bg-stone-800 text-stone-400 py-8 mt-8">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-sm">@2025 Desenvolvido por Maurício Campos<i> - Engenheiro de Software | Ciêntista e Analista de Dados</i></p>
+            <p class="text-sm">@2025 Desenvolvido por Maurício Campos<i> - Engenheiro de Software | Cientista e Analista de Dados</i></p>
             <p class="text-sm">Software criado Gratuitamente<i> - Se alguém te cobrar algo Recuse!</i></p>
         </div>
     </footer>
-    
+
     <!-- Logic -->
     <script>
         // --- 1. Firebase & Data Setup ---
@@ -405,18 +409,17 @@
             
             try {
                 // --- CONFIGURAÇÃO PESSOAL DO FIREBASE (FORNECIDA PELO USUÁRIO) ---
+                // O objeto foi corrigido e a versão do SDK no HTML foi ajustada
                 const firebaseConfig = {
                     apiKey: "AIzaSyCt8rWuKVi6S8cG1GUpa1MGfOGLz_5m-UM",
                     authDomain: "mapeamentocigarros.firebaseapp.com",
                     projectId: "mapeamentocigarros",
-                    // Atenção: Usei 'mapeamentocigarros.appspot.com' que é o padrão para StorageBucket,
-                    // mas mantive a lógica de pegar o nome do projeto se não houver um fornecido explicitamente.
+                    // O storageBucket foi corrigido para o domínio padrão do appspot
                     storageBucket: "mapeamentocigarros.appspot.com", 
                     messagingSenderId: "911298596636",
                     appId: "1:911298596636:web:12b5fa79299936e40b34d9"
                 };
                 
-                // O token de autenticação personalizado só é usado no ambiente do Canvas, ignoramos aqui.
                 const initialAuthToken = null; 
 
                 const app = firebase.initializeApp(firebaseConfig);
@@ -515,7 +518,7 @@
             renderTrendChart(stats.dailyStats);
             renderContextChart(stats.contextCounts);
             renderScatterPlot(appData);
-            renderTable(appData);
+            renderTable(appData, ""); // Inicializa a tabela sem filtro (com todos os dados)
         }
 
         // Global Chart instances to allow for destruction/update
@@ -779,19 +782,34 @@
             Plotly.newPlot('timeScatterChart', [smokeTrace, buyTrace], layout, config);
         }
 
-        function renderTable(data) {
+        function renderTable(data, filterTerm) {
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
             
-            if (data.length === 0) {
+            const term = filterTerm.toLowerCase();
+            
+            const filteredData = data.filter(item => 
+                item.context.toLowerCase().includes(term) || 
+                item.date.includes(term)
+            );
+
+            // Calcula o total consumido no filtro
+            let filteredCigsTotal = 0;
+            filteredData.forEach(item => {
+                filteredCigsTotal += item.cigsConsumed;
+            });
+            document.getElementById('kpi-filtered-cigs').textContent = filteredCigsTotal.toFixed(1) || '0.0';
+
+
+            if (filteredData.length === 0) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="5" class="px-6 py-4 text-center text-stone-400 italic">Nenhum registro encontrado. Comece a adicionar entradas acima!</td>`;
+                tr.innerHTML = `<td colspan="5" class="px-6 py-4 text-center text-stone-400 italic">Nenhum registro encontrado. Tente um filtro diferente.</td>`;
                 tbody.appendChild(tr);
                 return;
             }
 
             // Sort by Date (descending) then Time (descending)
-            const sortedData = [...data].sort((a, b) => {
+            const sortedData = [...filteredData].sort((a, b) => {
                 const parseDate = (dateStr, timeStr) => {
                     const [day, month, year] = dateStr.split('/');
                     const [hour, minute] = timeStr.split(':');
@@ -908,7 +926,7 @@
                 scrollToSection('overview');
 
                 // The UI update (refreshDashboard) will happen automatically via onSnapshot listener!
-                alert(`Registro salvo com sucesso - PARE DE FUMAR! Consumo: ${newRecord.cigsConsumed.toFixed(1)} un.`);
+                alert(`Registro salvo com sucesso (e permanentemente)! Consumo: ${newRecord.cigsConsumed.toFixed(1)} un.`);
 
             } catch (error) {
                 console.error("Error writing document:", error);
@@ -917,14 +935,10 @@
         });
 
 
-        // --- 7. Search/Filter Logic (No change) ---
+        // --- 7. Search/Filter Logic (NOVO: Atualiza a tabela E o KPI de filtro) ---
         document.getElementById('tableSearch').addEventListener('input', function(e) {
-            const term = e.target.value.toLowerCase();
-            const filtered = appData.filter(item => 
-                item.context.toLowerCase().includes(term) || 
-                item.date.includes(term)
-            );
-            renderTable(filtered);
+            const filterTerm = e.target.value;
+            renderTable(appData, filterTerm);
         });
 
         // --- 8. Navigation (No change) ---
@@ -939,6 +953,7 @@
         function init() {
             initFirebase();
             // Initial render with empty data until Firestore loads
+            renderTable([], ""); // Inicializa a tabela vazia
             refreshDashboard();
         }
 
