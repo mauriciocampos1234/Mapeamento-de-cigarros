@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão do Grupo de Tabagismo - Secretaria de Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Bibliotecas para Gerar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f0f9ff; color: #0f172a; } /* Slate/Sky theme */
+        .glass-panel { background: rgba(255, 255, 255, 0.95); border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        
+        /* Modal Styles */
+        .modal { transition: opacity 0.25s ease; }
+        body.modal-active { overflow-x: hidden; overflow-y: visible !important; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header Administrativo -->
+    <nav class="bg-teal-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">📋</span>
+                    <div>
+                        <h1 class="text-lg font-bold leading-tight">Gestão Grupo Tabagismo</h1>
+                        <p class="text-xs text-teal-200">Controle de Pacientes & Farmácia</p>
+                    </div>
+                </div>
+                <div class="flex space-x-4 text-sm font-medium">
+                    <button onclick="scrollToSection('dashboard')" class="hover:bg-teal-600 px-3 py-2 rounded transition">Painel</button>
+                    <button onclick="scrollToSection('patients')" class="hover:bg-teal-600 px-3 py-2 rounded transition">Pacientes</button>
+                    <button onclick="scrollToSection('pharmacy')" class="bg-teal-800 hover:bg-teal-900 px-3 py-2 rounded transition shadow-sm">💊 Pedido Farmácia</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- Status de Carregamento -->
+        <div id="authStatus" class="text-center text-xs text-slate-400 mb-4">Inicializando sistema...</div>
+
+        <!-- 1. Painel Geral -->
+        <section id="dashboard" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="glass-panel p-6 rounded-xl border-l-4 border-teal-500 bg-white">
+                <p class="text-sm font-medium text-slate-500 uppercase">Total de Pacientes</p>
+                <p class="text-4xl font-bold text-slate-800 mt-2" id="kpi-total">0</p>
+                <p class="text-xs text-slate-400 mt-1">Cadastrados no sistema</p>
+            </div>
+            <div class="glass-panel p-6 rounded-xl border-l-4 border-green-500 bg-white">
+                <p class="text-sm font-medium text-slate-500 uppercase">Em Tratamento Ativo</p>
+                <p class="text-4xl font-bold text-green-700 mt-2" id="kpi-active">0</p>
+                <p class="text-xs text-slate-400 mt-1">Geram demanda de remédio</p>
+            </div>
+            <div class="glass-panel p-6 rounded-xl border-l-4 border-blue-500 bg-white">
+                <p class="text-sm font-medium text-slate-500 uppercase">Previsão Adesivos (Mês)</p>
+                <p class="text-4xl font-bold text-blue-700 mt-2" id="kpi-patches">0</p>
+                <p class="text-xs text-slate-400 mt-1">Estimativa base sem margem</p>
+            </div>
+        </section>
+
+        <!-- 2. Gestão de Pacientes -->
+        <section id="patients" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Formulário de Cadastro -->
+            <div class="lg:col-span-1">
+                <div class="glass-panel p-6 rounded-xl bg-white sticky top-24">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span>👤</span> Novo Paciente
+                    </h3>
+                    <form id="patientForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Nome Completo</label>
+                            <input type="text" id="inputName" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Data de Início</label>
+                            <input type="date" id="inputDate" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Status</label>
+                            <select id="inputStatus" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 border p-2">
+                                <option value="Ativo">🟢 Em Tratamento (Gera Custo)</option>
+                                <option value="Alta">✅ Alta / Parou de Fumar</option>
+                                <option value="Desistente">❌ Desistente / Recaída</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Medicamento Atual</label>
+                            <select id="inputMedication" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 border p-2">
+                                <option value="Adesivo 21mg">Adesivo 21mg (Fase 1)</option>
+                                <option value="Adesivo 14mg">Adesivo 14mg (Fase 2)</option>
+                                <option value="Adesivo 7mg">Adesivo 7mg (Fase 3)</option>
+                                <option value="Goma 2mg">Goma/Pastilha 2mg</option>
+                                <option value="Bupropiona">Bupropiona 150mg</option>
+                                <option value="Nenhum">Sem Medicação (Apenas Grupo)</option>
+                            </select>
+                        </div>
+                        <button type="submit" id="btnSavePatient" disabled class="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                            Cadastrar Paciente
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Lista de Pacientes -->
+            <div class="lg:col-span-2">
+                <div class="glass-panel rounded-xl bg-white overflow-hidden">
+                    <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-700">Lista de Participantes</h3>
+                        <input type="text" id="searchPatient" placeholder="Buscar nome..." class="text-sm border border-slate-300 rounded-md px-3 py-1">
+                    </div>
+                    <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-100 text-slate-600 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-3">Nome</th>
+                                    <th class="px-4 py-3">Início</th>
+                                    <th class="px-4 py-3">Medicação</th>
+                                    <th class="px-4 py-3">Status</th>
+                                    <th class="px-4 py-3 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientTableBody" class="divide-y divide-slate-100">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Calculadora de Pedido (Farmácia) -->
+        <section id="pharmacy" class="bg-white rounded-xl shadow-lg border border-teal-100 overflow-hidden">
+            <div class="bg-teal-800 p-6 text-white flex justify-between items-center flex-wrap gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold flex items-center gap-2">💊 Gerador de Pedido de Medicamentos</h2>
+                    <p class="text-teal-200">Cálculo automático baseado nos pacientes ativos + margem de segurança.</p>
+                </div>
+            </div>
+            
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Controles -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Período do Pedido</label>
+                        <select id="calcPeriod" class="w-full border-slate-300 rounded-md p-2" onchange="calculateOrder()">
+                            <option value="30">Mensal (30 dias)</option>
+                            <option value="60">Bimestral (60 dias)</option>
+                            <option value="90">Trimestral (90 dias)</option>
+                        </select>
+                        <p class="text-xs text-slate-500 mt-1">Tempo de cobertura do estoque.</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Margem de Segurança</label>
+                        <select id="calcMargin" class="w-full border-slate-300 rounded-md p-2" onchange="calculateOrder()">
+                            <option value="0.10">10% (Padrão)</option>
+                            <option value="0.20">20% (Alta Rotatividade)</option>
+                            <option value="0.30">30% (Estoque Extra)</option>
+                            <option value="0">0% (Apenas Ativos)</option>
+                        </select>
+                        <p class="text-xs text-slate-500 mt-1">Para cobrir novos pacientes.</p>
+                    </div>
+                    
+                    <button onclick="openReportModal()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded shadow-md transition flex items-center justify-center gap-2">
+                        <span>📤</span> Gerar Relatório para Envio
+                    </button>
+                </div>
+
+                <!-- Resultado -->
+                <div class="lg:col-span-3">
+                    <div class="border rounded-lg overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="bg-teal-50 text-teal-800 uppercase text-xs font-bold">
+                                <tr>
+                                    <th class="px-6 py-3">Medicamento</th>
+                                    <th class="px-6 py-3 text-center">Pacientes Ativos</th>
+                                    <th class="px-6 py-3 text-center">Consumo Real</th>
+                                    <th class="px-6 py-3 text-right bg-teal-100">Quantidade a Pedir (c/ Margem)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pharmacyTableBody" class="divide-y divide-slate-100 text-sm">
+                                <!-- Gerado via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 text-sm">
+                        <strong>Nota Técnica:</strong> O cálculo considera o uso padrão diário (1 adesivo/dia, média 2 comp. bupropiona/dia, média 6 gomas/dia). Ajuste conforme protocolo municipal.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal de Relatório -->
+    <div id="reportModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+        <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50"></div>
+        
+        <div class="modal-container bg-white w-11/12 md:max-w-3xl mx-auto rounded shadow-lg z-50 overflow-y-auto">
+            
+            <div class="modal-content py-4 text-left px-6">
+                <!-- Title -->
+                <div class="flex justify-between items-center pb-3">
+                    <p class="text-2xl font-bold text-slate-800">Relatório de Solicitação</p>
+                    <div class="modal-close cursor-pointer z-50" onclick="closeReportModal()">
+                        <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+                            <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="my-5">
+                    <p class="mb-2 text-sm text-slate-600">Pré-visualização do texto (para e-mail/copiar):</p>
+                    <textarea id="reportTextPreview" class="w-full h-64 p-3 border border-slate-300 rounded bg-slate-50 font-mono text-sm" readonly></textarea>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex flex-col md:flex-row justify-end pt-2 gap-2">
+                    <button onclick="copyReportToClipboard()" class="px-4 py-2 bg-slate-200 p-3 rounded-lg text-slate-700 hover:bg-slate-300 transition">📋 Copiar Texto</button>
+                    <button onclick="sendReportEmail()" class="px-4 py-2 bg-blue-600 p-3 rounded-lg text-white hover:bg-blue-700 transition">📧 Abrir E-mail</button>
+                    <button onclick="downloadReportPDF()" class="px-4 py-2 bg-red-600 p-3 rounded-lg text-white hover:bg-red-700 transition">📄 Baixar PDF</button>
+                    <button onclick="closeReportModal()" class="px-4 py-2 bg-transparent p-3 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition border border-slate-200">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Unificados -->
+    <script type="module">
+        // Importações do Firebase (Versão 10.13.1 - Estável)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        // --- CONFIGURAÇÃO E DADOS GLOBAIS ---
+        let patientsData = [];
+        let db, auth, userId;
+        const collectionName = "smokingGroupPatients"; 
+
+        const dosageRules = {
+            'Adesivo 21mg': 1,
+            'Adesivo 14mg': 1,
+            'Adesivo 7mg': 1,
+            'Goma 2mg': 6, 
+            'Bupropiona': 2,
+            'Nenhum': 0
+        };
+
+        let calculatedOrderData = []; 
+
+        // Funções de Navegação e UI (Expostas para o HTML)
+        window.scrollToSection = function(id) {
+            const element = document.getElementById(id);
+            if(element) element.scrollIntoView({behavior:'smooth'});
+        };
+
+        function setFormState(ready) {
+            const btn = document.getElementById('btnSavePatient');
+            if(btn) {
+                if(ready) {
+                    btn.disabled = false;
+                    btn.textContent = "Cadastrar Paciente";
+                } else {
+                    btn.disabled = true;
+                    btn.textContent = "Conectando...";
+                }
+            }
+        }
+
+        // --- FIREBASE INIT ---
+        async function initFirebase() {
+            // >>>>>> COLE SUAS CREDENCIAIS AQUI <<<<<<
+            // Substitua este objeto pelo que você copiou do console do Firebase
+            const firebaseConfig = {
+               // Cole aqui suas chaves (apiKey, authDomain, etc.)
+            }; 
+
+            // Verificação de Segurança para evitar travamento se estiver vazio
+            if (!firebaseConfig.apiKey) {
+                console.warn("Firebase Config vazia. O sistema funcionará apenas visualmente (sem salvar).");
+                document.getElementById('authStatus').textContent = "⚠️ Modo Offline: Configure o Firebase no código para salvar.";
+                setFormState(true); // Habilita para teste visual, mas vai dar erro ao salvar
+                return;
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                setFormState(false);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('authStatus').textContent = `Sistema Online | ID: ${userId.substring(0,5)}...`;
+                        listenToPatients();
+                        setFormState(true);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                });
+
+            } catch (e) {
+                console.error("Erro Firebase:", e);
+                document.getElementById('authStatus').textContent = "Erro de conexão.";
+                alert("Erro ao conectar no banco de dados. Verifique o console.");
+            }
+        }
+
+        // --- Lógica de Banco de Dados ---
+        function listenToPatients() {
+            if (!db || !userId) return;
+
+            // Caminho para a coleção do usuário
+            const q = query(
+                collection(db, `artifacts/gestao_tabagismo/users/${userId}/${collectionName}`),
+                orderBy("createdAt", "desc")
+            );
+
+            onSnapshot(q, (snapshot) => {
+                patientsData = [];
+                snapshot.forEach(docSnap => {
+                    patientsData.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderApp();
+            }, (error) => {
+                console.error("Erro ao ler dados:", error);
+            });
+        }
+
+        // --- Funções Expostas Globalmente (Necessárias para o onclick do HTML) ---
+        
+        window.deletePatient = async function(id) {
+            if(confirm("Tem certeza que deseja excluir este registro?")) {
+                try {
+                    await deleteDoc(doc(db, `artifacts/gestao_tabagismo/users/${userId}/${collectionName}`, id));
+                } catch(e) {
+                    alert("Erro ao excluir: " + e.message);
+                }
+            }
+        };
+
+        window.updatePatientStatus = async function(id, newStatus) {
+            try {
+                await updateDoc(doc(db, `artifacts/gestao_tabagismo/users/${userId}/${collectionName}`, id), {
+                    status: newStatus
+                });
+            } catch(e) {
+                alert("Erro ao atualizar: " + e.message);
+            }
+        };
+
+        window.calculateOrder = function() {
+            const periodDays = parseInt(document.getElementById('calcPeriod').value);
+            const marginPct = parseFloat(document.getElementById('calcMargin').value);
+            const tbody = document.getElementById('pharmacyTableBody');
+            if(!tbody) return;
+            
+            tbody.innerHTML = '';
+            calculatedOrderData = []; 
+
+            const medicationCounts = {};
+            for (const medKey in dosageRules) {
+                if(medKey !== 'Nenhum') medicationCounts[medKey] = 0;
+            }
+
+            patientsData.forEach(p => {
+                if (p.status === 'Ativo' && p.medication !== 'Nenhum') {
+                    if (medicationCounts[p.medication] !== undefined) {
+                        medicationCounts[p.medication]++;
+                    }
+                }
+            });
+
+            for (const [medName, activeCount] of Object.entries(medicationCounts)) {
+                const dailyDose = dosageRules[medName];
+                const realNeed = activeCount * dailyDose * periodDays;
+                const safetyMarginAmount = Math.ceil(realNeed * marginPct);
+                const totalRequest = realNeed + safetyMarginAmount;
+
+                calculatedOrderData.push({
+                    item: medName,
+                    activePatients: activeCount,
+                    totalRequest: totalRequest
+                });
+
+                const rowClass = totalRequest > 0 ? 'bg-white' : 'bg-slate-50 text-slate-400';
+                const highlight = totalRequest > 0 ? 'font-bold text-teal-700 bg-teal-50' : '';
+
+                tbody.innerHTML += `
+                    <tr class="${rowClass} border-b border-slate-100">
+                        <td class="px-6 py-3">${medName}</td>
+                        <td class="px-6 py-3 text-center">${activeCount}</td>
+                        <td class="px-6 py-3 text-center">${realNeed}</td>
+                        <td class="px-6 py-3 text-right ${highlight} text-lg">${totalRequest} un.</td>
+                    </tr>
+                `;
+            }
+        };
+
+        // --- Funcionalidades de Relatório ---
+
+        window.openReportModal = function() {
+            const text = generateReportString();
+            document.getElementById('reportTextPreview').value = text;
+            
+            const modal = document.getElementById('reportModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            document.body.classList.add('modal-active');
+        };
+
+        window.closeReportModal = function() {
+            const modal = document.getElementById('reportModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('modal-active');
+        };
+
+        window.copyReportToClipboard = function() {
+            const text = document.getElementById('reportTextPreview');
+            text.select();
+            document.execCommand('copy'); 
+            alert("Texto copiado para a área de transferência!");
+        };
+
+        window.sendReportEmail = function() {
+            const text = generateReportString();
+            const subject = "Solicitação de Medicamentos - Grupo Tabagismo";
+            const body = encodeURIComponent(text);
+            window.open(`mailto:?subject=${subject}&body=${body}`);
+        };
+
+        window.downloadReportPDF = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const date = new Date().toLocaleDateString('pt-BR');
+            const periodElem = document.getElementById('calcPeriod');
+            const period = periodElem.options[periodElem.selectedIndex].text;
+
+            doc.setFontSize(18);
+            doc.text("Solicitação de Medicamentos", 14, 22);
+            doc.setFontSize(12);
+            doc.text("Grupo de Controle ao Tabagismo", 14, 30);
+            
+            doc.setFontSize(10);
+            doc.text(`Data do Pedido: ${date}`, 14, 45);
+            doc.text(`Período de Referência: ${period}`, 14, 50);
+            doc.text(`Total de Pacientes Ativos: ${patientsData.filter(p => p.status === 'Ativo').length}`, 14, 55);
+
+            const tableBody = calculatedOrderData
+                .filter(row => row.totalRequest > 0)
+                .map(row => [row.item, row.activePatients, row.totalRequest + ' un.']);
+
+            doc.autoTable({
+                head: [['Medicamento', 'Pacientes em Uso', 'Quantidade Solicitada']],
+                body: tableBody,
+                startY: 65,
+                theme: 'grid',
+                headStyles: { fillColor: [13, 148, 136] } 
+            });
+
+            const finalY = doc.lastAutoTable.finalY || 100;
+            doc.text("Relatório gerado automaticamente pelo sistema de gestão.", 14, finalY + 15);
+
+            doc.save(`pedido_medicamentos_${date.replace(/\//g, '-')}.pdf`);
+        };
+
+        // --- Funções Auxiliares Internas ---
+
+        function generateReportString() {
+            const date = new Date().toLocaleDateString('pt-BR');
+            const periodElem = document.getElementById('calcPeriod');
+            const period = periodElem.options[periodElem.selectedIndex].text;
+            const marginElem = document.getElementById('calcMargin');
+            const margin = marginElem.options[marginElem.selectedIndex].text;
+            
+            let text = `SOLICITAÇÃO DE MEDICAMENTOS - GRUPO DE TABAGISMO\n`;
+            text += `Data: ${date}\n`;
+            text += `Período de Cobertura: ${period}\n`;
+            text += `Margem de Segurança Aplicada: ${margin}\n`;
+            text += `--------------------------------------------------\n\n`;
+            text += `ITENS SOLICITADOS:\n`;
+
+            calculatedOrderData.forEach(row => {
+                if (row.totalRequest > 0) {
+                    text += `- ${row.item}: ${row.totalRequest} unidades (Pacientes ativos: ${row.activePatients})\n`;
+                }
+            });
+
+            text += `\n--------------------------------------------------\n`;
+            text += `Total de Pacientes Ativos no Programa: ${patientsData.filter(p => p.status === 'Ativo').length}\n`;
+            
+            return text;
+        }
+
+        function renderApp() {
+            renderTable();
+            updateKPIs();
+            window.calculateOrder(); 
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('patientTableBody');
+            const term = document.getElementById('searchPatient').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            const filtered = patientsData.filter(p => p.name.toLowerCase().includes(term));
+
+            filtered.forEach(p => {
+                const statusColor = p.status === 'Ativo' ? 'text-green-600 bg-green-50' : (p.status === 'Alta' ? 'text-blue-600 bg-blue-50' : 'text-red-600 bg-red-50');
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-4 py-3 font-medium text-slate-700">${p.name}</td>
+                        <td class="px-4 py-3 text-slate-500">${p.startDate.split('-').reverse().join('/')}</td>
+                        <td class="px-4 py-3 text-slate-600">${p.medication}</td>
+                        <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-bold ${statusColor}">${p.status}</span></td>
+                        <td class="px-4 py-3 text-right space-x-2">
+                            <button onclick="window.updatePatientStatus('${p.id}', '${p.status === 'Ativo' ? 'Alta' : 'Ativo'}')" class="text-xs text-blue-600 hover:underline">Alterar Status</button>
+                            <button onclick="window.deletePatient('${p.id}')" class="text-xs text-red-600 hover:underline">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateKPIs() {
+            const total = patientsData.length;
+            const active = patientsData.filter(p => p.status === 'Ativo').length;
+            const patches = patientsData.filter(p => p.status === 'Ativo' && p.medication.includes('Adesivo')).length;
+            
+            document.getElementById('kpi-total').textContent = total;
+            document.getElementById('kpi-active').textContent = active;
+            document.getElementById('kpi-patches').textContent = patches * 30; 
+        }
+
+        // --- Inicialização ---
+        
+        // Listeners do DOM
+        const patientForm = document.getElementById('patientForm');
+        if(patientForm) {
+            patientForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('inputName').value;
+                const date = document.getElementById('inputDate').value;
+                const status = document.getElementById('inputStatus').value;
+                const med = document.getElementById('inputMedication').value;
+
+                if (!db || !userId) {
+                    alert("Aguarde a conexão com o banco de dados.");
+                    return;
+                }
+
+                try {
+                    await addDoc(collection(db, `artifacts/gestao_tabagismo/users/${userId}/${collectionName}`), {
+                        name, startDate: date, status, medication: med,
+                        createdAt: serverTimestamp()
+                    });
+                    document.getElementById('patientForm').reset();
+                    alert("Paciente cadastrado!");
+                } catch (error) {
+                    alert("Erro ao salvar: " + error.message);
+                    console.error(error);
+                }
+            });
+        }
+
+        const searchInput = document.getElementById('searchPatient');
+        if(searchInput) searchInput.addEventListener('input', renderTable);
+
+        // Iniciar
+        initFirebase();
+
+    </script>
+</body>
+</html>
