@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Medicamentos do Grupo de Tabagismo - Secretaria de Saúde</title>
+    <title>Gestão do Grupo de Tabagismo - Secretaria de Saúde</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -93,7 +93,7 @@
                         <div>
                             <label class="block text-sm font-medium text-slate-700">Status Inicial</label>
                             <select id="inputStatus" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 border p-2">
-                                <option value="Ativo" selected>🟢 Em Tratamento (Gera Custo)</option>
+                                <option value="Ativo" selected>🟢 Em Tratamento (Sem custo paciente)</option>
                                 <option value="Alta">✅ Alta / Parou de Fumar</option>
                                 <option value="Desistente">❌ Desistente / Recaída</option>
                             </select>
@@ -179,14 +179,15 @@
 
                 <!-- Resultado -->
                 <div class="lg:col-span-3">
-                    <div class="border rounded-lg overflow-hidden">
+                    <!-- CORREÇÃO: overflow-x-auto permite rolagem horizontal no mobile -->
+                    <div class="border rounded-lg overflow-x-auto">
                         <table class="w-full text-left">
                             <thead class="bg-teal-50 text-teal-800 uppercase text-xs font-bold">
                                 <tr>
-                                    <th class="px-6 py-3">Medicamento</th>
-                                    <th class="px-6 py-3 text-center">Pacientes em Uso</th>
-                                    <th class="px-6 py-3 text-center">Demanda (Caixas)</th>
-                                    <th class="px-6 py-3 text-right bg-teal-100">Quantidade a Pedir (Total)</th>
+                                    <th class="px-6 py-3 whitespace-nowrap">Medicamento</th>
+                                    <th class="px-6 py-3 text-center whitespace-nowrap">Pacientes em Uso</th>
+                                    <th class="px-6 py-3 text-center whitespace-nowrap">Demanda (Caixas)</th>
+                                    <th class="px-6 py-3 text-right bg-teal-100 whitespace-nowrap">Quantidade a Pedir (Total)</th>
                                 </tr>
                             </thead>
                             <tbody id="pharmacyTableBody" class="divide-y divide-slate-100 text-sm">
@@ -262,6 +263,7 @@
             </div>
         </div>
     </div>
+
     <!-- Footer -->
     <footer class="bg-stone-800 text-stone-400 py-8 mt-8">
         <div class="max-w-7xl mx-auto px-4 text-center">
@@ -312,7 +314,6 @@
                     apiKey: "AIzaSyCt8rWuKVi6S8cG1GUpa1MGfOGLz_5m-UM",
                     authDomain: "mapeamentocigarros.firebaseapp.com",
                     projectId: "mapeamentocigarros",
-                    // O storageBucket foi corrigido para o domínio padrão do appspot
                     storageBucket: "mapeamentocigarros.appspot.com", 
                     messagingSenderId: "911298596636",
                     appId: "1:911298596636:web:12b5fa79299936e40b34d9"
@@ -580,10 +581,10 @@
 
                     tbody.innerHTML += `
                         <tr class="${rowClass} border-b border-slate-100">
-                            <td class="px-6 py-3">${medName}</td>
-                            <td class="px-6 py-3 text-center">${data.users}</td>
-                            <td class="px-6 py-3 text-center">${baseNeed}</td>
-                            <td class="px-6 py-3 text-right ${highlight} text-lg">${totalRequest} cx.</td>
+                            <td class="px-6 py-3 whitespace-nowrap">${medName}</td>
+                            <td class="px-6 py-3 text-center whitespace-nowrap">${data.users}</td>
+                            <td class="px-6 py-3 text-center whitespace-nowrap">${baseNeed}</td>
+                            <td class="px-6 py-3 text-right ${highlight} text-lg whitespace-nowrap">${totalRequest} cx.</td>
                         </tr>
                     `;
                 }
@@ -739,4 +740,3 @@
     </script>
 </body>
 </html>
-
