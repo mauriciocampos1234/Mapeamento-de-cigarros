@@ -25,22 +25,23 @@
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
-
-    <!-- Header Administrativo -->
+    
     <nav class="bg-teal-700 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
+        <div class="max-w-7xl mx-auto px-2 sm:px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between py-2 md:h-16 gap-2 md:gap-0">
+                <!-- Logo e Título Centralizados no Mobile -->
+                <div class="flex items-center gap-2 w-full md:w-auto justify-center md:justify-start">
                     <span class="text-2xl">📋</span>
-                    <div>
-                        <h1 class="text-lg font-bold leading-tight">Gestão Grupo Tabagismo</h1>
-                        <p class="text-xs text-teal-200">Controle de Pacientes & Farmácia</p>
+                    <div class="text-center md:text-left">
+                        <h1 class="text-lg font-bold leading-tight">Gestão Tabagismo</h1>
+                        <p class="text-xs text-teal-200 hidden sm:block">Controle de Pacientes & Farmácia</p>
                     </div>
                 </div>
-                <div class="flex space-x-4 text-sm font-medium">
+                <!-- Botões Ajustados para Mobile -->
+                <div class="flex w-full md:w-auto justify-center space-x-1 sm:space-x-4 text-xs sm:text-sm font-medium">
                     <button onclick="scrollToSection('dashboard')" class="hover:bg-teal-600 px-3 py-2 rounded transition">Painel</button>
                     <button onclick="scrollToSection('patients')" class="hover:bg-teal-600 px-3 py-2 rounded transition">Pacientes</button>
-                    <button onclick="scrollToSection('pharmacy')" class="bg-teal-800 hover:bg-teal-900 px-3 py-2 rounded transition shadow-sm">💊 Pedido Farmácia</button>
+                    <button onclick="scrollToSection('pharmacy')" class="bg-teal-800 hover:bg-teal-900 px-3 py-2 rounded transition shadow-sm whitespace-nowrap">💊 Pedido Farmácia</button>
                 </div>
             </div>
         </div>
@@ -709,3 +710,4 @@
     </script>
 </body>
 </html>
+
