@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão do Grupo de Tabagismo - Secretaria de Saúde</title>
+    <title>Gestão Medicamentos do Grupo de Tabagismo - Secretaria de Saúde</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -21,11 +21,13 @@
         body.modal-active { overflow-x: hidden; overflow-y: visible !important; }
         
         /* Checkbox Custom Style */
-        .med-checkbox:checked + div { background-color: #ccfbf1; border-color: #0d9488; color: #0f766e; }
+        .med-row.checked { background-color: #ccfbf1; border-color: #0d9488; }
+        .med-row.checked .med-name { color: #0f766e; font-weight: 600; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
-    
+
+    <!-- Header Administrativo (Versão Corrigida Mobile) -->
     <nav class="bg-teal-700 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-2 sm:px-4">
             <div class="flex flex-col md:flex-row items-center justify-between py-2 md:h-16 gap-2 md:gap-0">
@@ -49,6 +51,7 @@
 
     <main class="flex-grow w-full max-w-7xl mx-auto px-4 py-8 space-y-8">
 
+        <!-- Status de Carregamento -->
         <div id="authStatus" class="text-center text-xs text-slate-400 mb-4">Inicializando sistema...</div>
 
         <!-- 1. Painel Geral -->
@@ -64,9 +67,9 @@
                 <p class="text-xs text-slate-400 mt-1">Geram demanda de remédio</p>
             </div>
             <div class="glass-panel p-6 rounded-xl border-l-4 border-blue-500 bg-white">
-                <p class="text-sm font-medium text-slate-500 uppercase">Previsão Adesivos (Mês)</p>
-                <p class="text-4xl font-bold text-blue-700 mt-2" id="kpi-patches">0</p>
-                <p class="text-xs text-slate-400 mt-1">Estimativa base sem margem</p>
+                <p class="text-sm font-medium text-slate-500 uppercase">Previsão Medicamento (Mês)</p>
+                <p class="text-4xl font-bold text-blue-700 mt-2" id="kpi-boxes">0</p>
+                <p class="text-xs text-slate-400 mt-1">Total de caixas (todos os tipos)</p>
             </div>
         </section>
 
@@ -97,44 +100,9 @@
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">Medicamentos Prescritos (Múltipla Escolha)</label>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Prescrição (Qtd. Caixas/Mês)</label>
                             <div class="grid grid-cols-1 gap-2 text-sm" id="medicationCheckboxes">
-                                <!-- Checkbox Item -->
-                                <label class="cursor-pointer relative">
-                                    <input type="checkbox" name="meds" value="Adesivo 21mg" class="med-checkbox sr-only">
-                                    <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
-                                        <span>Adesivo 21mg (Fase 1)</span>
-                                        <span class="check-icon hidden text-teal-600 font-bold">✓</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer relative">
-                                    <input type="checkbox" name="meds" value="Adesivo 14mg" class="med-checkbox sr-only">
-                                    <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
-                                        <span>Adesivo 14mg (Fase 2)</span>
-                                        <span class="check-icon hidden text-teal-600 font-bold">✓</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer relative">
-                                    <input type="checkbox" name="meds" value="Adesivo 7mg" class="med-checkbox sr-only">
-                                    <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
-                                        <span>Adesivo 7mg (Fase 3)</span>
-                                        <span class="check-icon hidden text-teal-600 font-bold">✓</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer relative">
-                                    <input type="checkbox" name="meds" value="Goma 2mg" class="med-checkbox sr-only">
-                                    <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
-                                        <span>Goma/Pastilha 2mg</span>
-                                        <span class="check-icon hidden text-teal-600 font-bold">✓</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer relative">
-                                    <input type="checkbox" name="meds" value="Bupropiona" class="med-checkbox sr-only">
-                                    <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
-                                        <span>Bupropiona 150mg</span>
-                                        <span class="check-icon hidden text-teal-600 font-bold">✓</span>
-                                    </div>
-                                </label>
+                                <!-- Preenchido via JS -->
                             </div>
                         </div>
 
@@ -157,7 +125,7 @@
                             <thead class="bg-slate-100 text-slate-600 sticky top-0 z-10">
                                 <tr>
                                     <th class="px-4 py-3">Nome</th>
-                                    <th class="px-4 py-3">Medicação</th>
+                                    <th class="px-4 py-3">Medicação (Caixas)</th>
                                     <th class="px-4 py-3">Status</th>
                                     <th class="px-4 py-3 text-right">Ações</th>
                                 </tr>
@@ -176,7 +144,7 @@
             <div class="bg-teal-800 p-6 text-white flex justify-between items-center flex-wrap gap-4">
                 <div>
                     <h2 class="text-2xl font-bold flex items-center gap-2">💊 Gerador de Pedido de Medicamentos</h2>
-                    <p class="text-teal-200">Cálculo automático baseado nos pacientes ativos + margem de segurança.</p>
+                    <p class="text-teal-200">Cálculo automático baseado na soma das caixas prescritas aos pacientes ativos.</p>
                 </div>
             </div>
             
@@ -185,17 +153,17 @@
                 <div class="lg:col-span-1 space-y-6">
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <label class="block text-sm font-bold text-slate-700 mb-2">Período do Pedido</label>
-                        <select id="calcPeriod" class="w-full border-slate-300 rounded-md p-2" onchange="calculateOrder()">
-                            <option value="30">Mensal (30 dias)</option>
-                            <option value="60">Bimestral (60 dias)</option>
-                            <option value="90">Trimestral (90 dias)</option>
+                        <select id="calcPeriod" class="w-full border-slate-300 rounded-md p-2" onchange="window.calculateOrder()">
+                            <option value="1">Mensal (30 dias)</option>
+                            <option value="2">Bimestral (60 dias)</option>
+                            <option value="3">Trimestral (90 dias)</option>
                         </select>
-                        <p class="text-xs text-slate-500 mt-1">Tempo de cobertura do estoque.</p>
+                        <p class="text-xs text-slate-500 mt-1">Multiplicador do consumo mensal.</p>
                     </div>
 
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <label class="block text-sm font-bold text-slate-700 mb-2">Margem de Segurança</label>
-                        <select id="calcMargin" class="w-full border-slate-300 rounded-md p-2" onchange="calculateOrder()">
+                        <select id="calcMargin" class="w-full border-slate-300 rounded-md p-2" onchange="window.calculateOrder()">
                             <option value="0.10">10% (Padrão)</option>
                             <option value="0.20">20% (Alta Rotatividade)</option>
                             <option value="0.30">30% (Estoque Extra)</option>
@@ -204,7 +172,7 @@
                         <p class="text-xs text-slate-500 mt-1">Para cobrir novos pacientes.</p>
                     </div>
                     
-                    <button onclick="openReportModal()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded shadow-md transition flex items-center justify-center gap-2">
+                    <button onclick="window.openReportModal()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded shadow-md transition flex items-center justify-center gap-2">
                         <span>📤</span> Gerar Relatório para Envio
                     </button>
                 </div>
@@ -216,9 +184,9 @@
                             <thead class="bg-teal-50 text-teal-800 uppercase text-xs font-bold">
                                 <tr>
                                     <th class="px-6 py-3">Medicamento</th>
-                                    <th class="px-6 py-3 text-center">Pacientes Ativos</th>
-                                    <th class="px-6 py-3 text-center">Consumo Real</th>
-                                    <th class="px-6 py-3 text-right bg-teal-100">Quantidade a Pedir (c/ Margem)</th>
+                                    <th class="px-6 py-3 text-center">Pacientes em Uso</th>
+                                    <th class="px-6 py-3 text-center">Demanda (Caixas)</th>
+                                    <th class="px-6 py-3 text-right bg-teal-100">Quantidade a Pedir (Total)</th>
                                 </tr>
                             </thead>
                             <tbody id="pharmacyTableBody" class="divide-y divide-slate-100 text-sm">
@@ -227,7 +195,7 @@
                         </table>
                     </div>
                     <div class="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 text-sm">
-                        <strong>Nota Técnica:</strong> O cálculo soma todos os medicamentos ativos por paciente. Ex: Se um paciente usa Adesivo + Bupropiona, ambos são contabilizados.
+                        <strong>Nota Técnica:</strong> O cálculo considera a soma exata de caixas cadastradas para cada paciente ativo, multiplicada pelo período selecionado (ex: Bimestral = Demanda Mensal x 2).
                     </div>
                 </div>
             </div>
@@ -242,16 +210,16 @@
             <div class="modal-content py-4 text-left px-6">
                 <div class="flex justify-between items-center pb-3">
                     <p class="text-2xl font-bold text-slate-800">Relatório de Solicitação</p>
-                    <div class="modal-close cursor-pointer z-50 p-2 bg-slate-100 rounded-full hover:bg-slate-200" onclick="closeReportModal()">✕</div>
+                    <div class="modal-close cursor-pointer z-50 p-2 bg-slate-100 rounded-full hover:bg-slate-200" onclick="window.closeReportModal()">✕</div>
                 </div>
                 <div class="my-5">
                     <p class="mb-2 text-sm text-slate-600">Pré-visualização do texto:</p>
                     <textarea id="reportTextPreview" class="w-full h-64 p-3 border border-slate-300 rounded bg-slate-50 font-mono text-sm" readonly></textarea>
                 </div>
                 <div class="flex flex-col md:flex-row justify-end pt-2 gap-2">
-                    <button onclick="copyReportToClipboard()" class="px-4 py-2 bg-slate-200 p-3 rounded-lg text-slate-700 hover:bg-slate-300 transition">📋 Copiar Texto</button>
-                    <button onclick="sendReportEmail()" class="px-4 py-2 bg-blue-600 p-3 rounded-lg text-white hover:bg-blue-700 transition">📧 Abrir E-mail</button>
-                    <button onclick="downloadReportPDF()" class="px-4 py-2 bg-red-600 p-3 rounded-lg text-white hover:bg-red-700 transition">📄 Baixar PDF</button>
+                    <button onclick="window.copyReportToClipboard()" class="px-4 py-2 bg-slate-200 p-3 rounded-lg text-slate-700 hover:bg-slate-300 transition">📋 Copiar Texto</button>
+                    <button onclick="window.sendReportEmail()" class="px-4 py-2 bg-blue-600 p-3 rounded-lg text-white hover:bg-blue-700 transition">📧 Abrir E-mail</button>
+                    <button onclick="window.downloadReportPDF()" class="px-4 py-2 bg-red-600 p-3 rounded-lg text-white hover:bg-red-700 transition">📄 Baixar PDF</button>
                 </div>
             </div>
         </div>
@@ -264,7 +232,7 @@
             <div class="modal-content py-4 text-left px-6">
                 <div class="flex justify-between items-center pb-3 border-b border-slate-100">
                     <p class="text-xl font-bold text-slate-800">Editar Paciente</p>
-                    <div class="modal-close cursor-pointer z-50 p-2 bg-slate-100 rounded-full hover:bg-slate-200" onclick="closeEditModal()">✕</div>
+                    <div class="modal-close cursor-pointer z-50 p-2 bg-slate-100 rounded-full hover:bg-slate-200" onclick="window.closeEditModal()">✕</div>
                 </div>
                 <div class="my-5 space-y-4">
                     <input type="hidden" id="editPatientId">
@@ -281,24 +249,24 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">Medicamentos</label>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Medicamentos (Qtd. Caixas)</label>
                         <div class="grid grid-cols-1 gap-2 text-sm" id="editMedicationCheckboxes">
-                            <!-- Gerado via JS igual ao cadastro -->
+                            <!-- Gerado via JS -->
                         </div>
                     </div>
                 </div>
                 <div class="flex justify-end pt-2 gap-2">
-                    <button onclick="closeEditModal()" class="px-4 py-2 border rounded hover:bg-slate-50">Cancelar</button>
-                    <button onclick="saveEditedPatient()" class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700">Salvar Alterações</button>
+                    <button onclick="window.closeEditModal()" class="px-4 py-2 border rounded hover:bg-slate-50">Cancelar</button>
+                    <button onclick="window.saveEditedPatient()" class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700">Salvar Alterações</button>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Footer -->
     <footer class="bg-stone-800 text-stone-400 py-8 mt-8">
         <div class="max-w-7xl mx-auto px-4 text-center">
             <p class="text-sm">@2025 Desenvolvido por Maurício Campos<i> - Engenheiro de Software | Cientista e Analista de Dados</i></p>
+            <p class="text-sm">Software criado Gratuitamente<i> - Se alguém te cobrar algo Recuse!</i></p>
         </div>
     </footer>
 
@@ -313,18 +281,9 @@
         let db, auth, userId;
         const collectionName = "smokingGroupPatients"; 
 
-        const dosageRules = {
-            'Adesivo 21mg': 1,
-            'Adesivo 14mg': 1,
-            'Adesivo 7mg': 1,
-            'Goma 2mg': 6, 
-            'Bupropiona': 2,
-            'Nenhum': 0
-        };
-
         let calculatedOrderData = []; 
 
-        // Lista de remédios disponíveis para gerar os checkboxes dinamicamente
+        // Lista de remédios disponíveis
         const availableMeds = [
             "Adesivo 21mg", "Adesivo 14mg", "Adesivo 7mg", "Goma 2mg", "Bupropiona"
         ];
@@ -364,6 +323,8 @@
                 console.warn("Firebase Config vazia.");
                 document.getElementById('authStatus').textContent = "⚠️ Modo Offline: Configure o Firebase no código.";
                 setFormState(true); 
+                // Render UI even without firebase for layout check
+                generateCheckboxHTML('medicationCheckboxes');
                 return;
             }
 
@@ -380,6 +341,8 @@
                         document.getElementById('authStatus').textContent = `Sistema Online | ID: ${userId.substring(0,5)}...`;
                         listenToPatients();
                         setFormState(true);
+                        // Generate checkboxes once loaded
+                        generateCheckboxHTML('medicationCheckboxes');
                     } else {
                         await signInAnonymously(auth);
                     }
@@ -409,17 +372,70 @@
             });
         }
 
-        // --- CRUD DE PACIENTES ---
+        // --- GERAÇÃO DE FORMULÁRIO DINÂMICO (CHECKBOX + CONTADOR) ---
 
-        function getSelectedMeds(formId) {
-            const checkboxes = document.querySelectorAll(`#${formId} input[name="meds"]:checked`);
-            let values = [];
-            checkboxes.forEach((checkbox) => {
-                values.push(checkbox.value);
+        function generateCheckboxHTML(containerId, activeMeds = []) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            
+            availableMeds.forEach(med => {
+                // Check if patient has this med
+                const existing = activeMeds.find(m => m.name === med);
+                const isChecked = !!existing;
+                const qty = existing ? existing.quantity : 1; // Default 1 box if new check
+
+                const div = document.createElement('div');
+                div.className = `med-row border rounded-md p-2 transition flex items-center justify-between gap-2 ${isChecked ? 'checked' : 'bg-white'}`;
+                
+                div.innerHTML = `
+                    <label class="flex items-center gap-2 flex-grow cursor-pointer select-none">
+                        <input type="checkbox" class="med-cb w-4 h-4 text-teal-600 rounded" value="${med}" ${isChecked ? 'checked' : ''}>
+                        <span class="med-name text-slate-700">${med}</span>
+                    </label>
+                    <div class="flex items-center gap-1 ${isChecked ? '' : 'hidden'} qty-container">
+                        <span class="text-xs text-slate-500">Caixas:</span>
+                        <input type="number" class="med-qty w-16 border rounded px-1 py-0.5 text-center text-sm" value="${qty}" min="1">
+                    </div>
+                `;
+
+                // Add listener to toggle styling and input visibility
+                const checkbox = div.querySelector('.med-cb');
+                const qtyContainer = div.querySelector('.qty-container');
+                
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        div.classList.add('checked');
+                        qtyContainer.classList.remove('hidden');
+                    } else {
+                        div.classList.remove('checked');
+                        qtyContainer.classList.add('hidden');
+                    }
+                });
+
+                container.appendChild(div);
             });
-            if (values.length === 0) values.push("Nenhum");
-            return values;
         }
+
+        // Helper to extract data from form checkboxes
+        function getSelectedMedsData(containerId) {
+            const container = document.getElementById(containerId);
+            const selected = [];
+            container.querySelectorAll('.med-row').forEach(row => {
+                const cb = row.querySelector('.med-cb');
+                const qtyInput = row.querySelector('.med-qty');
+                
+                if (cb.checked) {
+                    selected.push({
+                        name: cb.value,
+                        quantity: parseInt(qtyInput.value) || 1
+                    });
+                }
+            });
+            return selected;
+        }
+
+        // --- CRUD ---
 
         const patientForm = document.getElementById('patientForm');
         if(patientForm) {
@@ -429,8 +445,7 @@
                 const date = document.getElementById('inputDate').value;
                 const status = document.getElementById('inputStatus').value;
                 
-                // Pega múltiplos remédios
-                const medications = getSelectedMeds('patientForm');
+                const medications = getSelectedMedsData('medicationCheckboxes');
 
                 if (!db || !userId) { alert("Aguarde conexão."); return; }
 
@@ -439,11 +454,12 @@
                         name, 
                         startDate: date, 
                         status, 
-                        medications: medications, // Salva como array
+                        medications: medications, 
                         createdAt: serverTimestamp()
                     });
                     document.getElementById('patientForm').reset();
-                    // Reset checkboxes manually visuals if needed, standard reset does uncheck them
+                    // Reset visuals
+                    generateCheckboxHTML('medicationCheckboxes'); 
                     alert("Paciente cadastrado!");
                 } catch (error) {
                     alert("Erro ao salvar: " + error.message);
@@ -461,25 +477,7 @@
             }
         };
 
-        // --- NOVA LÓGICA DE EDIÇÃO ---
-
-        function generateCheckboxHTML(containerId, selectedMeds = []) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            
-            availableMeds.forEach(med => {
-                const isChecked = selectedMeds.includes(med) ? 'checked' : '';
-                container.innerHTML += `
-                    <label class="cursor-pointer relative">
-                        <input type="checkbox" name="meds" value="${med}" ${isChecked} class="med-checkbox sr-only">
-                        <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
-                            <span>${med}</span>
-                            <span class="check-icon hidden text-teal-600 font-bold">✓</span>
-                        </div>
-                    </label>
-                `;
-            });
-        }
+        // --- EDIÇÃO ---
 
         window.openEditModal = function(id) {
             const patient = patientsData.find(p => p.id === id);
@@ -489,10 +487,18 @@
             document.getElementById('editName').value = patient.name;
             document.getElementById('editStatus').value = patient.status;
 
-            // Compatibilidade: Se for array usa, se for string antiga converte em array
-            let meds = Array.isArray(patient.medications) ? patient.medications : (patient.medication ? [patient.medication] : []);
+            // Normalize legacy data (array of strings) to new object structure
+            let normalizedMeds = [];
+            if (Array.isArray(patient.medications)) {
+                normalizedMeds = patient.medications.map(m => {
+                    if (typeof m === 'string') return { name: m, quantity: 1 }; // Legacy
+                    return m; // New format
+                });
+            } else if (patient.medication && patient.medication !== 'Nenhum') {
+                normalizedMeds = [{ name: patient.medication, quantity: 1 }]; // Legacy single
+            }
             
-            generateCheckboxHTML('editMedicationCheckboxes', meds);
+            generateCheckboxHTML('editMedicationCheckboxes', normalizedMeds);
 
             const modal = document.getElementById('editModal');
             modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -509,23 +515,24 @@
             const id = document.getElementById('editPatientId').value;
             const name = document.getElementById('editName').value;
             const status = document.getElementById('editStatus').value;
-            const medications = getSelectedMeds('editMedicationCheckboxes'); // Reutiliza lógica de pegar checkbox da modal
+            const medications = getSelectedMedsData('editMedicationCheckboxes');
 
             try {
                 await updateDoc(doc(db, `artifacts/gestao_tabagismo/users/${userId}/${collectionName}`, id), {
                     name, status, medications
                 });
-                closeEditModal();
+                window.closeEditModal();
             } catch(e) {
                 alert("Erro ao editar: " + e.message);
             }
         };
 
 
-        // --- LÓGICA DE CÁLCULO (ATUALIZADA PARA MULTIPLOS REMEDIOS) ---
+        // --- CÁLCULO FARMÁCIA (BASEADO EM CAIXAS) ---
 
         window.calculateOrder = function() {
-            const periodDays = parseInt(document.getElementById('calcPeriod').value);
+            // Period now acts as a multiplier (1 month, 2 months...)
+            const periodMultiplier = parseInt(document.getElementById('calcPeriod').value);
             const marginPct = parseFloat(document.getElementById('calcMargin').value);
             const tbody = document.getElementById('pharmacyTableBody');
             if(!tbody) return;
@@ -533,47 +540,54 @@
             tbody.innerHTML = '';
             calculatedOrderData = []; 
 
-            const medicationCounts = {};
-            for (const medKey in dosageRules) {
-                if(medKey !== 'Nenhum') medicationCounts[medKey] = 0;
-            }
+            // Initialize counters
+            const summary = {};
+            availableMeds.forEach(m => summary[m] = { users: 0, totalBoxes: 0 });
 
             patientsData.forEach(p => {
                 if (p.status === 'Ativo') {
-                    // Normaliza para array (suporte legado)
-                    const meds = Array.isArray(p.medications) ? p.medications : (p.medication ? [p.medication] : []);
-                    
-                    meds.forEach(medName => {
-                        if (medName !== 'Nenhum' && medicationCounts[medName] !== undefined) {
-                            medicationCounts[medName]++;
+                    // Normalize data
+                    let meds = [];
+                    if (Array.isArray(p.medications)) {
+                        meds = p.medications.map(m => typeof m === 'string' ? {name: m, quantity: 1} : m);
+                    } else if (p.medication && p.medication !== 'Nenhum') {
+                        meds = [{ name: p.medication, quantity: 1 }];
+                    }
+
+                    meds.forEach(m => {
+                        if (summary[m.name]) {
+                            summary[m.name].users++;
+                            summary[m.name].totalBoxes += m.quantity;
                         }
                     });
                 }
             });
 
-            for (const [medName, activeCount] of Object.entries(medicationCounts)) {
-                const dailyDose = dosageRules[medName];
-                const realNeed = activeCount * dailyDose * periodDays;
-                const safetyMarginAmount = Math.ceil(realNeed * marginPct);
-                const totalRequest = realNeed + safetyMarginAmount;
+            for (const [medName, data] of Object.entries(summary)) {
+                // Calc: (Monthly Boxes * Period) + Margin
+                const baseNeed = data.totalBoxes * periodMultiplier;
+                const safetyMarginAmount = Math.ceil(baseNeed * marginPct);
+                const totalRequest = baseNeed + safetyMarginAmount;
 
-                calculatedOrderData.push({
-                    item: medName,
-                    activePatients: activeCount,
-                    totalRequest: totalRequest
-                });
+                if (totalRequest > 0 || data.users > 0) { // Show if active users exist even if count 0
+                    calculatedOrderData.push({
+                        item: medName,
+                        activePatients: data.users,
+                        totalRequest: totalRequest
+                    });
 
-                const rowClass = totalRequest > 0 ? 'bg-white' : 'bg-slate-50 text-slate-400';
-                const highlight = totalRequest > 0 ? 'font-bold text-teal-700 bg-teal-50' : '';
+                    const rowClass = totalRequest > 0 ? 'bg-white' : 'bg-slate-50 text-slate-400';
+                    const highlight = totalRequest > 0 ? 'font-bold text-teal-700 bg-teal-50' : '';
 
-                tbody.innerHTML += `
-                    <tr class="${rowClass} border-b border-slate-100">
-                        <td class="px-6 py-3">${medName}</td>
-                        <td class="px-6 py-3 text-center">${activeCount}</td>
-                        <td class="px-6 py-3 text-center">${realNeed}</td>
-                        <td class="px-6 py-3 text-right ${highlight} text-lg">${totalRequest} un.</td>
-                    </tr>
-                `;
+                    tbody.innerHTML += `
+                        <tr class="${rowClass} border-b border-slate-100">
+                            <td class="px-6 py-3">${medName}</td>
+                            <td class="px-6 py-3 text-center">${data.users}</td>
+                            <td class="px-6 py-3 text-center">${baseNeed}</td>
+                            <td class="px-6 py-3 text-right ${highlight} text-lg">${totalRequest} cx.</td>
+                        </tr>
+                    `;
+                }
             }
         };
 
@@ -589,11 +603,11 @@
             text += `Data: ${date}\n`;
             text += `Período: ${period} | Margem: ${margin}\n`;
             text += `--------------------------------------------------\n\n`;
-            text += `ITENS SOLICITADOS:\n`;
+            text += `ITENS SOLICITADOS (CAIXAS):\n`;
 
             calculatedOrderData.forEach(row => {
                 if (row.totalRequest > 0) {
-                    text += `- ${row.item}: ${row.totalRequest} unidades (Pacientes ativos: ${row.activePatients})\n`;
+                    text += `- ${row.item}: ${row.totalRequest} caixas (Para ${row.activePatients} pacientes)\n`;
                 }
             });
 
@@ -637,7 +651,7 @@
             
             const tableBody = calculatedOrderData
                 .filter(row => row.totalRequest > 0)
-                .map(row => [row.item, row.activePatients, row.totalRequest + ' un.']);
+                .map(row => [row.item, row.activePatients, row.totalRequest + ' caixas']);
 
             doc.autoTable({
                 head: [['Medicamento', 'Pacientes', 'Qtd. Solicitada']],
@@ -665,16 +679,25 @@
                 
                 // Formata array de remédios para string bonita
                 let medsDisplay = "Nenhum";
-                if (Array.isArray(p.medications) && p.medications.length > 0) {
-                    medsDisplay = p.medications.join(", ");
-                } else if (p.medication) {
-                    medsDisplay = p.medication; // Legado
+                let totalBoxes = 0;
+
+                // Normalize for display
+                let meds = [];
+                if (Array.isArray(p.medications)) {
+                    meds = p.medications.map(m => typeof m === 'string' ? {name: m, quantity: 1} : m);
+                } else if (p.medication && p.medication !== 'Nenhum') {
+                    meds = [{ name: p.medication, quantity: 1 }];
+                }
+
+                if (meds.length > 0) {
+                    medsDisplay = meds.map(m => `${m.name} (${m.quantity}cx)`).join(", ");
+                    totalBoxes = meds.reduce((sum, m) => sum + m.quantity, 0);
                 }
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
                         <td class="px-4 py-3 font-medium text-slate-700">${p.name}</td>
-                        <td class="px-4 py-3 text-xs text-slate-500 max-w-[150px] truncate" title="${medsDisplay}">${medsDisplay}</td>
+                        <td class="px-4 py-3 text-xs text-slate-500 max-w-[200px]" title="${medsDisplay}">${medsDisplay}</td>
                         <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-bold ${statusColor}">${p.status}</span></td>
                         <td class="px-4 py-3 text-right space-x-2">
                             <button onclick="window.openEditModal('${p.id}')" class="text-xs text-blue-600 font-bold border border-blue-200 px-2 py-1 rounded hover:bg-blue-50">✏️ Editar</button>
@@ -689,16 +712,23 @@
             const total = patientsData.length;
             const active = patientsData.filter(p => p.status === 'Ativo').length;
             
-            // Lógica ajustada para array: procura "Adesivo" dentro do array de remédios
-            const patches = patientsData.filter(p => {
-                if (p.status !== 'Ativo') return false;
-                const meds = Array.isArray(p.medications) ? p.medications : (p.medication ? [p.medication] : []);
-                return meds.some(m => m.includes('Adesivo'));
-            }).length;
+            // Soma total de caixas de todos os pacientes ativos
+            let totalBoxes = 0;
+            patientsData.forEach(p => {
+                if (p.status === 'Ativo') {
+                    let meds = [];
+                    if (Array.isArray(p.medications)) {
+                        meds = p.medications.map(m => typeof m === 'string' ? {name: m, quantity: 1} : m);
+                    } else if (p.medication && p.medication !== 'Nenhum') {
+                        meds = [{ name: p.medication, quantity: 1 }];
+                    }
+                    totalBoxes += meds.reduce((sum, m) => sum + m.quantity, 0);
+                }
+            });
             
             document.getElementById('kpi-total').textContent = total;
             document.getElementById('kpi-active').textContent = active;
-            document.getElementById('kpi-patches').textContent = patches * 30; 
+            document.getElementById('kpi-boxes').textContent = totalBoxes; 
         }
 
         const searchInput = document.getElementById('searchPatient');
@@ -710,4 +740,3 @@
     </script>
 </body>
 </html>
-
