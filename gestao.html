@@ -19,6 +19,9 @@
         /* Modal Styles */
         .modal { transition: opacity 0.25s ease; }
         body.modal-active { overflow-x: hidden; overflow-y: visible !important; }
+        
+        /* Checkbox Custom Style */
+        .med-checkbox:checked + div { background-color: #ccfbf1; border-color: #0d9488; color: #0f766e; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -45,7 +48,6 @@
 
     <main class="flex-grow w-full max-w-7xl mx-auto px-4 py-8 space-y-8">
 
-        <!-- Status de Carregamento -->
         <div id="authStatus" class="text-center text-xs text-slate-400 mb-4">Inicializando sistema...</div>
 
         <!-- 1. Painel Geral -->
@@ -85,24 +87,56 @@
                             <input type="date" id="inputDate" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 border p-2">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700">Status</label>
+                            <label class="block text-sm font-medium text-slate-700">Status Inicial</label>
                             <select id="inputStatus" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 border p-2">
-                                <option value="Ativo">🟢 Em Tratamento (Gera Custo)</option>
+                                <option value="Ativo" selected>🟢 Em Tratamento (Gera Custo)</option>
                                 <option value="Alta">✅ Alta / Parou de Fumar</option>
                                 <option value="Desistente">❌ Desistente / Recaída</option>
                             </select>
                         </div>
+                        
                         <div>
-                            <label class="block text-sm font-medium text-slate-700">Medicamento Atual</label>
-                            <select id="inputMedication" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 border p-2">
-                                <option value="Adesivo 21mg">Adesivo 21mg (Fase 1)</option>
-                                <option value="Adesivo 14mg">Adesivo 14mg (Fase 2)</option>
-                                <option value="Adesivo 7mg">Adesivo 7mg (Fase 3)</option>
-                                <option value="Goma 2mg">Goma/Pastilha 2mg</option>
-                                <option value="Bupropiona">Bupropiona 150mg</option>
-                                <option value="Nenhum">Sem Medicação (Apenas Grupo)</option>
-                            </select>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Medicamentos Prescritos (Múltipla Escolha)</label>
+                            <div class="grid grid-cols-1 gap-2 text-sm" id="medicationCheckboxes">
+                                <!-- Checkbox Item -->
+                                <label class="cursor-pointer relative">
+                                    <input type="checkbox" name="meds" value="Adesivo 21mg" class="med-checkbox sr-only">
+                                    <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
+                                        <span>Adesivo 21mg (Fase 1)</span>
+                                        <span class="check-icon hidden text-teal-600 font-bold">✓</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative">
+                                    <input type="checkbox" name="meds" value="Adesivo 14mg" class="med-checkbox sr-only">
+                                    <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
+                                        <span>Adesivo 14mg (Fase 2)</span>
+                                        <span class="check-icon hidden text-teal-600 font-bold">✓</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative">
+                                    <input type="checkbox" name="meds" value="Adesivo 7mg" class="med-checkbox sr-only">
+                                    <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
+                                        <span>Adesivo 7mg (Fase 3)</span>
+                                        <span class="check-icon hidden text-teal-600 font-bold">✓</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative">
+                                    <input type="checkbox" name="meds" value="Goma 2mg" class="med-checkbox sr-only">
+                                    <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
+                                        <span>Goma/Pastilha 2mg</span>
+                                        <span class="check-icon hidden text-teal-600 font-bold">✓</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative">
+                                    <input type="checkbox" name="meds" value="Bupropiona" class="med-checkbox sr-only">
+                                    <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
+                                        <span>Bupropiona 150mg</span>
+                                        <span class="check-icon hidden text-teal-600 font-bold">✓</span>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
+
                         <button type="submit" id="btnSavePatient" disabled class="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
                             Cadastrar Paciente
                         </button>
@@ -115,14 +149,13 @@
                 <div class="glass-panel rounded-xl bg-white overflow-hidden">
                     <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
                         <h3 class="font-bold text-slate-700">Lista de Participantes</h3>
-                        <input type="text" id="searchPatient" placeholder="Buscar nome..." class="text-sm border border-slate-300 rounded-md px-3 py-1">
+                        <input type="text" id="searchPatient" placeholder="Buscar nome..." class="text-sm border border-slate-300 rounded-md px-3 py-1 w-1/3">
                     </div>
-                    <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+                    <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
                         <table class="w-full text-sm text-left">
-                            <thead class="bg-slate-100 text-slate-600 sticky top-0">
+                            <thead class="bg-slate-100 text-slate-600 sticky top-0 z-10">
                                 <tr>
                                     <th class="px-4 py-3">Nome</th>
-                                    <th class="px-4 py-3">Início</th>
                                     <th class="px-4 py-3">Medicação</th>
                                     <th class="px-4 py-3">Status</th>
                                     <th class="px-4 py-3 text-right">Ações</th>
@@ -193,7 +226,7 @@
                         </table>
                     </div>
                     <div class="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 text-sm">
-                        <strong>Nota Técnica:</strong> O cálculo considera o uso padrão diário (1 adesivo/dia, média 2 comp. bupropiona/dia, média 6 gomas/dia). Ajuste conforme protocolo municipal.
+                        <strong>Nota Técnica:</strong> O cálculo soma todos os medicamentos ativos por paciente. Ex: Se um paciente usa Adesivo + Bupropiona, ambos são contabilizados.
                     </div>
                 </div>
             </div>
@@ -204,45 +237,77 @@
     <!-- Modal de Relatório -->
     <div id="reportModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
         <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50"></div>
-        
         <div class="modal-container bg-white w-11/12 md:max-w-3xl mx-auto rounded shadow-lg z-50 overflow-y-auto">
-            
             <div class="modal-content py-4 text-left px-6">
-                <!-- Title -->
                 <div class="flex justify-between items-center pb-3">
                     <p class="text-2xl font-bold text-slate-800">Relatório de Solicitação</p>
-                    <div class="modal-close cursor-pointer z-50" onclick="closeReportModal()">
-                        <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-                            <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
-                        </svg>
-                    </div>
+                    <div class="modal-close cursor-pointer z-50 p-2 bg-slate-100 rounded-full hover:bg-slate-200" onclick="closeReportModal()">✕</div>
                 </div>
-
-                <!-- Body -->
                 <div class="my-5">
-                    <p class="mb-2 text-sm text-slate-600">Pré-visualização do texto (para e-mail/copiar):</p>
+                    <p class="mb-2 text-sm text-slate-600">Pré-visualização do texto:</p>
                     <textarea id="reportTextPreview" class="w-full h-64 p-3 border border-slate-300 rounded bg-slate-50 font-mono text-sm" readonly></textarea>
                 </div>
-
-                <!-- Footer -->
                 <div class="flex flex-col md:flex-row justify-end pt-2 gap-2">
                     <button onclick="copyReportToClipboard()" class="px-4 py-2 bg-slate-200 p-3 rounded-lg text-slate-700 hover:bg-slate-300 transition">📋 Copiar Texto</button>
                     <button onclick="sendReportEmail()" class="px-4 py-2 bg-blue-600 p-3 rounded-lg text-white hover:bg-blue-700 transition">📧 Abrir E-mail</button>
                     <button onclick="downloadReportPDF()" class="px-4 py-2 bg-red-600 p-3 rounded-lg text-white hover:bg-red-700 transition">📄 Baixar PDF</button>
-                    <button onclick="closeReportModal()" class="px-4 py-2 bg-transparent p-3 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition border border-slate-200">Fechar</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal de Edição -->
+    <div id="editModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+        <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50"></div>
+        <div class="modal-container bg-white w-11/12 md:max-w-lg mx-auto rounded shadow-lg z-50 overflow-y-auto">
+            <div class="modal-content py-4 text-left px-6">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                    <p class="text-xl font-bold text-slate-800">Editar Paciente</p>
+                    <div class="modal-close cursor-pointer z-50 p-2 bg-slate-100 rounded-full hover:bg-slate-200" onclick="closeEditModal()">✕</div>
+                </div>
+                <div class="my-5 space-y-4">
+                    <input type="hidden" id="editPatientId">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Nome</label>
+                        <input type="text" id="editName" class="w-full border p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Status</label>
+                        <select id="editStatus" class="w-full border p-2 rounded">
+                            <option value="Ativo">🟢 Em Tratamento</option>
+                            <option value="Alta">✅ Alta</option>
+                            <option value="Desistente">❌ Desistente</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Medicamentos</label>
+                        <div class="grid grid-cols-1 gap-2 text-sm" id="editMedicationCheckboxes">
+                            <!-- Gerado via JS igual ao cadastro -->
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end pt-2 gap-2">
+                    <button onclick="closeEditModal()" class="px-4 py-2 border rounded hover:bg-slate-50">Cancelar</button>
+                    <button onclick="saveEditedPatient()" class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-stone-800 text-stone-400 py-8 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">@2025 Desenvolvido por Maurício Campos<i> - Engenheiro de Software | Cientista e Analista de Dados</i></p>
+        </div>
+    </footer>
+
     <!-- Scripts Unificados -->
     <script type="module">
-        // Importações do Firebase (Versão 10.13.1 - Estável)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-        // --- CONFIGURAÇÃO E DADOS GLOBAIS ---
+        // --- DADOS GLOBAIS ---
         let patientsData = [];
         let db, auth, userId;
         const collectionName = "smokingGroupPatients"; 
@@ -258,7 +323,11 @@
 
         let calculatedOrderData = []; 
 
-        // Funções de Navegação e UI (Expostas para o HTML)
+        // Lista de remédios disponíveis para gerar os checkboxes dinamicamente
+        const availableMeds = [
+            "Adesivo 21mg", "Adesivo 14mg", "Adesivo 7mg", "Goma 2mg", "Bupropiona"
+        ];
+
         window.scrollToSection = function(id) {
             const element = document.getElementById(id);
             if(element) element.scrollIntoView({behavior:'smooth'});
@@ -280,21 +349,20 @@
         // --- FIREBASE INIT ---
         async function initFirebase() {
             // >>>>>> COLE SUAS CREDENCIAIS AQUI <<<<<<
-            // Substitua este objeto pelo que você copiou do console do Firebase
             const firebaseConfig = {
                     apiKey: "AIzaSyCt8rWuKVi6S8cG1GUpa1MGfOGLz_5m-UM",
                     authDomain: "mapeamentocigarros.firebaseapp.com",
                     projectId: "mapeamentocigarros",
+                    // O storageBucket foi corrigido para o domínio padrão do appspot
                     storageBucket: "mapeamentocigarros.appspot.com", 
                     messagingSenderId: "911298596636",
                     appId: "1:911298596636:web:12b5fa79299936e40b34d9"
             }; 
 
-            // Verificação de Segurança para evitar travamento se estiver vazio
             if (!firebaseConfig.apiKey) {
-                console.warn("Firebase Config vazia. O sistema funcionará apenas visualmente (sem salvar).");
-                document.getElementById('authStatus').textContent = "⚠️ Modo Offline: Configure o Firebase no código para salvar.";
-                setFormState(true); // Habilita para teste visual, mas vai dar erro ao salvar
+                console.warn("Firebase Config vazia.");
+                document.getElementById('authStatus').textContent = "⚠️ Modo Offline: Configure o Firebase no código.";
+                setFormState(true); 
                 return;
             }
 
@@ -319,15 +387,13 @@
             } catch (e) {
                 console.error("Erro Firebase:", e);
                 document.getElementById('authStatus').textContent = "Erro de conexão.";
-                alert("Erro ao conectar no banco de dados. Verifique o console.");
+                alert("Erro ao conectar no banco de dados.");
             }
         }
 
-        // --- Lógica de Banco de Dados ---
         function listenToPatients() {
             if (!db || !userId) return;
 
-            // Caminho para a coleção do usuário
             const q = query(
                 collection(db, `artifacts/gestao_tabagismo/users/${userId}/${collectionName}`),
                 orderBy("createdAt", "desc")
@@ -339,13 +405,51 @@
                     patientsData.push({ id: docSnap.id, ...docSnap.data() });
                 });
                 renderApp();
-            }, (error) => {
-                console.error("Erro ao ler dados:", error);
             });
         }
 
-        // --- Funções Expostas Globalmente (Necessárias para o onclick do HTML) ---
-        
+        // --- CRUD DE PACIENTES ---
+
+        function getSelectedMeds(formId) {
+            const checkboxes = document.querySelectorAll(`#${formId} input[name="meds"]:checked`);
+            let values = [];
+            checkboxes.forEach((checkbox) => {
+                values.push(checkbox.value);
+            });
+            if (values.length === 0) values.push("Nenhum");
+            return values;
+        }
+
+        const patientForm = document.getElementById('patientForm');
+        if(patientForm) {
+            patientForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('inputName').value;
+                const date = document.getElementById('inputDate').value;
+                const status = document.getElementById('inputStatus').value;
+                
+                // Pega múltiplos remédios
+                const medications = getSelectedMeds('patientForm');
+
+                if (!db || !userId) { alert("Aguarde conexão."); return; }
+
+                try {
+                    await addDoc(collection(db, `artifacts/gestao_tabagismo/users/${userId}/${collectionName}`), {
+                        name, 
+                        startDate: date, 
+                        status, 
+                        medications: medications, // Salva como array
+                        createdAt: serverTimestamp()
+                    });
+                    document.getElementById('patientForm').reset();
+                    // Reset checkboxes manually visuals if needed, standard reset does uncheck them
+                    alert("Paciente cadastrado!");
+                } catch (error) {
+                    alert("Erro ao salvar: " + error.message);
+                }
+            });
+        }
+
         window.deletePatient = async function(id) {
             if(confirm("Tem certeza que deseja excluir este registro?")) {
                 try {
@@ -356,15 +460,68 @@
             }
         };
 
-        window.updatePatientStatus = async function(id, newStatus) {
+        // --- NOVA LÓGICA DE EDIÇÃO ---
+
+        function generateCheckboxHTML(containerId, selectedMeds = []) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            availableMeds.forEach(med => {
+                const isChecked = selectedMeds.includes(med) ? 'checked' : '';
+                container.innerHTML += `
+                    <label class="cursor-pointer relative">
+                        <input type="checkbox" name="meds" value="${med}" ${isChecked} class="med-checkbox sr-only">
+                        <div class="p-2 border rounded-md hover:bg-slate-50 transition flex items-center justify-between">
+                            <span>${med}</span>
+                            <span class="check-icon hidden text-teal-600 font-bold">✓</span>
+                        </div>
+                    </label>
+                `;
+            });
+        }
+
+        window.openEditModal = function(id) {
+            const patient = patientsData.find(p => p.id === id);
+            if (!patient) return;
+
+            document.getElementById('editPatientId').value = id;
+            document.getElementById('editName').value = patient.name;
+            document.getElementById('editStatus').value = patient.status;
+
+            // Compatibilidade: Se for array usa, se for string antiga converte em array
+            let meds = Array.isArray(patient.medications) ? patient.medications : (patient.medication ? [patient.medication] : []);
+            
+            generateCheckboxHTML('editMedicationCheckboxes', meds);
+
+            const modal = document.getElementById('editModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            document.body.classList.add('modal-active');
+        };
+
+        window.closeEditModal = function() {
+            const modal = document.getElementById('editModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('modal-active');
+        };
+
+        window.saveEditedPatient = async function() {
+            const id = document.getElementById('editPatientId').value;
+            const name = document.getElementById('editName').value;
+            const status = document.getElementById('editStatus').value;
+            const medications = getSelectedMeds('editMedicationCheckboxes'); // Reutiliza lógica de pegar checkbox da modal
+
             try {
                 await updateDoc(doc(db, `artifacts/gestao_tabagismo/users/${userId}/${collectionName}`, id), {
-                    status: newStatus
+                    name, status, medications
                 });
+                closeEditModal();
             } catch(e) {
-                alert("Erro ao atualizar: " + e.message);
+                alert("Erro ao editar: " + e.message);
             }
         };
+
+
+        // --- LÓGICA DE CÁLCULO (ATUALIZADA PARA MULTIPLOS REMEDIOS) ---
 
         window.calculateOrder = function() {
             const periodDays = parseInt(document.getElementById('calcPeriod').value);
@@ -381,10 +538,15 @@
             }
 
             patientsData.forEach(p => {
-                if (p.status === 'Ativo' && p.medication !== 'Nenhum') {
-                    if (medicationCounts[p.medication] !== undefined) {
-                        medicationCounts[p.medication]++;
-                    }
+                if (p.status === 'Ativo') {
+                    // Normaliza para array (suporte legado)
+                    const meds = Array.isArray(p.medications) ? p.medications : (p.medication ? [p.medication] : []);
+                    
+                    meds.forEach(medName => {
+                        if (medName !== 'Nenhum' && medicationCounts[medName] !== undefined) {
+                            medicationCounts[medName]++;
+                        }
+                    });
                 }
             });
 
@@ -414,86 +576,17 @@
             }
         };
 
-        // --- Funcionalidades de Relatório ---
-
-        window.openReportModal = function() {
-            const text = generateReportString();
-            document.getElementById('reportTextPreview').value = text;
-            
-            const modal = document.getElementById('reportModal');
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            document.body.classList.add('modal-active');
-        };
-
-        window.closeReportModal = function() {
-            const modal = document.getElementById('reportModal');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            document.body.classList.remove('modal-active');
-        };
-
-        window.copyReportToClipboard = function() {
-            const text = document.getElementById('reportTextPreview');
-            text.select();
-            document.execCommand('copy'); 
-            alert("Texto copiado para a área de transferência!");
-        };
-
-        window.sendReportEmail = function() {
-            const text = generateReportString();
-            const subject = "Solicitação de Medicamentos - Grupo Tabagismo";
-            const body = encodeURIComponent(text);
-            window.open(`mailto:?subject=${subject}&body=${body}`);
-        };
-
-        window.downloadReportPDF = function() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            const date = new Date().toLocaleDateString('pt-BR');
-            const periodElem = document.getElementById('calcPeriod');
-            const period = periodElem.options[periodElem.selectedIndex].text;
-
-            doc.setFontSize(18);
-            doc.text("Solicitação de Medicamentos", 14, 22);
-            doc.setFontSize(12);
-            doc.text("Grupo de Controle ao Tabagismo", 14, 30);
-            
-            doc.setFontSize(10);
-            doc.text(`Data do Pedido: ${date}`, 14, 45);
-            doc.text(`Período de Referência: ${period}`, 14, 50);
-            doc.text(`Total de Pacientes Ativos: ${patientsData.filter(p => p.status === 'Ativo').length}`, 14, 55);
-
-            const tableBody = calculatedOrderData
-                .filter(row => row.totalRequest > 0)
-                .map(row => [row.item, row.activePatients, row.totalRequest + ' un.']);
-
-            doc.autoTable({
-                head: [['Medicamento', 'Pacientes em Uso', 'Quantidade Solicitada']],
-                body: tableBody,
-                startY: 65,
-                theme: 'grid',
-                headStyles: { fillColor: [13, 148, 136] } 
-            });
-
-            const finalY = doc.lastAutoTable.finalY || 100;
-            doc.text("Relatório gerado automaticamente pelo sistema de gestão.", 14, finalY + 15);
-
-            doc.save(`pedido_medicamentos_${date.replace(/\//g, '-')}.pdf`);
-        };
-
-        // --- Funções Auxiliares Internas ---
+        // --- RELATÓRIOS ---
 
         function generateReportString() {
             const date = new Date().toLocaleDateString('pt-BR');
             const periodElem = document.getElementById('calcPeriod');
             const period = periodElem.options[periodElem.selectedIndex].text;
-            const marginElem = document.getElementById('calcMargin');
-            const margin = marginElem.options[marginElem.selectedIndex].text;
+            const margin = document.getElementById('calcMargin').options[document.getElementById('calcMargin').selectedIndex].text;
             
             let text = `SOLICITAÇÃO DE MEDICAMENTOS - GRUPO DE TABAGISMO\n`;
             text += `Data: ${date}\n`;
-            text += `Período de Cobertura: ${period}\n`;
-            text += `Margem de Segurança Aplicada: ${margin}\n`;
+            text += `Período: ${period} | Margem: ${margin}\n`;
             text += `--------------------------------------------------\n\n`;
             text += `ITENS SOLICITADOS:\n`;
 
@@ -504,10 +597,54 @@
             });
 
             text += `\n--------------------------------------------------\n`;
-            text += `Total de Pacientes Ativos no Programa: ${patientsData.filter(p => p.status === 'Ativo').length}\n`;
+            text += `Total de Pacientes Ativos: ${patientsData.filter(p => p.status === 'Ativo').length}\n`;
             
             return text;
         }
+
+        window.openReportModal = function() {
+            const text = generateReportString();
+            document.getElementById('reportTextPreview').value = text;
+            document.getElementById('reportModal').classList.remove('opacity-0', 'pointer-events-none');
+            document.body.classList.add('modal-active');
+        };
+
+        window.closeReportModal = function() {
+            document.getElementById('reportModal').classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('modal-active');
+        };
+
+        window.copyReportToClipboard = function() {
+            const text = document.getElementById('reportTextPreview');
+            text.select();
+            document.execCommand('copy'); 
+            alert("Copiado!");
+        };
+
+        window.sendReportEmail = function() {
+            const text = generateReportString();
+            window.open(`mailto:?subject=Pedido Farmacia Tabagismo&body=${encodeURIComponent(text)}`);
+        };
+
+        window.downloadReportPDF = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const date = new Date().toLocaleDateString('pt-BR');
+            
+            doc.setFontSize(16);
+            doc.text("Solicitação de Medicamentos", 14, 20);
+            
+            const tableBody = calculatedOrderData
+                .filter(row => row.totalRequest > 0)
+                .map(row => [row.item, row.activePatients, row.totalRequest + ' un.']);
+
+            doc.autoTable({
+                head: [['Medicamento', 'Pacientes', 'Qtd. Solicitada']],
+                body: tableBody,
+                startY: 30,
+            });
+            doc.save(`pedido_${date.replace(/\//g, '-')}.pdf`);
+        };
 
         function renderApp() {
             renderTable();
@@ -523,17 +660,24 @@
             const filtered = patientsData.filter(p => p.name.toLowerCase().includes(term));
 
             filtered.forEach(p => {
-                const statusColor = p.status === 'Ativo' ? 'text-green-600 bg-green-50' : (p.status === 'Alta' ? 'text-blue-600 bg-blue-50' : 'text-red-600 bg-red-50');
+                const statusColor = p.status === 'Ativo' ? 'text-green-600 bg-green-50' : 'text-slate-600 bg-slate-50';
                 
+                // Formata array de remédios para string bonita
+                let medsDisplay = "Nenhum";
+                if (Array.isArray(p.medications) && p.medications.length > 0) {
+                    medsDisplay = p.medications.join(", ");
+                } else if (p.medication) {
+                    medsDisplay = p.medication; // Legado
+                }
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
                         <td class="px-4 py-3 font-medium text-slate-700">${p.name}</td>
-                        <td class="px-4 py-3 text-slate-500">${p.startDate.split('-').reverse().join('/')}</td>
-                        <td class="px-4 py-3 text-slate-600">${p.medication}</td>
+                        <td class="px-4 py-3 text-xs text-slate-500 max-w-[150px] truncate" title="${medsDisplay}">${medsDisplay}</td>
                         <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-bold ${statusColor}">${p.status}</span></td>
                         <td class="px-4 py-3 text-right space-x-2">
-                            <button onclick="window.updatePatientStatus('${p.id}', '${p.status === 'Ativo' ? 'Alta' : 'Ativo'}')" class="text-xs text-blue-600 hover:underline">Alterar Status</button>
-                            <button onclick="window.deletePatient('${p.id}')" class="text-xs text-red-600 hover:underline">Excluir</button>
+                            <button onclick="window.openEditModal('${p.id}')" class="text-xs text-blue-600 font-bold border border-blue-200 px-2 py-1 rounded hover:bg-blue-50">✏️ Editar</button>
+                            <button onclick="window.deletePatient('${p.id}')" class="text-xs text-red-600 hover:underline">✕</button>
                         </td>
                     </tr>
                 `;
@@ -543,42 +687,17 @@
         function updateKPIs() {
             const total = patientsData.length;
             const active = patientsData.filter(p => p.status === 'Ativo').length;
-            const patches = patientsData.filter(p => p.status === 'Ativo' && p.medication.includes('Adesivo')).length;
+            
+            // Lógica ajustada para array: procura "Adesivo" dentro do array de remédios
+            const patches = patientsData.filter(p => {
+                if (p.status !== 'Ativo') return false;
+                const meds = Array.isArray(p.medications) ? p.medications : (p.medication ? [p.medication] : []);
+                return meds.some(m => m.includes('Adesivo'));
+            }).length;
             
             document.getElementById('kpi-total').textContent = total;
             document.getElementById('kpi-active').textContent = active;
             document.getElementById('kpi-patches').textContent = patches * 30; 
-        }
-
-        // --- Inicialização ---
-        
-        // Listeners do DOM
-        const patientForm = document.getElementById('patientForm');
-        if(patientForm) {
-            patientForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const name = document.getElementById('inputName').value;
-                const date = document.getElementById('inputDate').value;
-                const status = document.getElementById('inputStatus').value;
-                const med = document.getElementById('inputMedication').value;
-
-                if (!db || !userId) {
-                    alert("Aguarde a conexão com o banco de dados.");
-                    return;
-                }
-
-                try {
-                    await addDoc(collection(db, `artifacts/gestao_tabagismo/users/${userId}/${collectionName}`), {
-                        name, startDate: date, status, medication: med,
-                        createdAt: serverTimestamp()
-                    });
-                    document.getElementById('patientForm').reset();
-                    alert("Paciente cadastrado!");
-                } catch (error) {
-                    alert("Erro ao salvar: " + error.message);
-                    console.error(error);
-                }
-            });
         }
 
         const searchInput = document.getElementById('searchPatient');
