@@ -286,7 +286,7 @@
 
         // Lista de remédios disponíveis
         const availableMeds = [
-            "Adesivo 21mg", "Adesivo 14mg", "Adesivo 7mg", "Goma 2mg", "Bupropiona"
+            "Adesivo 21mg (3° Fase)", "Adesivo 14mg (2° Fase)", "Adesivo 7mg (1° Fase)", "Goma 2mg", "Bupropiona"
         ];
 
         window.scrollToSection = function(id) {
@@ -700,8 +700,8 @@
                         <td class="px-4 py-3 text-xs text-slate-500 max-w-[200px]" title="${medsDisplay}">${medsDisplay}</td>
                         <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-bold ${statusColor}">${p.status}</span></td>
                         <td class="px-4 py-3 text-right space-x-2">
-                            <button onclick="window.openEditModal('${p.id}')" class="text-xs text-blue-600 font-bold border border-blue-200 px-2 py-1 rounded hover:bg-blue-50">✏️ Editar</button>
-                            <button onclick="window.deletePatient('${p.id}')" class="text-xs text-red-600 hover:underline">✕</button>
+                            <button onclick="window.openEditModal('${p.id}')" class="text-xs text-blue-600 font-bold border border-blue-200 px-2 py-1 rounded hover:bg-blue-50">Editar</button>
+                            <button onclick="window.deletePatient('${p.id}')" class="text-xs text-blue-600 font-bold border border-blue-200 px-2 py-1 rounded hover:bg-blue-50">Excluir</button>
                         </td>
                     </tr>
                 `;
@@ -740,3 +740,4 @@
     </script>
 </body>
 </html>
+
